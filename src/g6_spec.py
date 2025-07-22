@@ -1,6 +1,6 @@
 from enum import Enum
 
-from g6_util import read_payload_as_hex_lines
+from g6_payload import Payload
 
 
 class StaticsEnum(Enum):
@@ -42,7 +42,8 @@ class AudioFeatureExtended(AudioFeature):
 
 
 class Audio:
-    def __init__(self, payload_number_values_hex_path):
+    def __init__(self):
+        # TODO record hex values with wireshark and define constants for new models from g6-ui
         # define static hex values
         self.static_dict = {
             StaticsEnum.PREFIX: 0x5a,
@@ -65,12 +66,13 @@ class Audio:
         }
         # parse number hex values
         self.number_value_dict = {}
-        hex_lines = read_payload_as_hex_lines(payload_number_values_hex_path)
+        payload = Payload.ZERO_TO_ONE_HUNDRED
+        hex_lines = payload.read_hex_lines()
         # check the file's number of lines
         expected_line_count = 202
         if not len(hex_lines) == expected_line_count:
             raise RuntimeError(
-                f"The file {payload_number_values_hex_path} seems to be corrupted, since it does not contain the "
+                f"The file {payload.get_relative_file_path()} seems to be corrupted, since it does not contain the "
                 f"expected {expected_line_count} lines! Aborting execution.")
         # read from every even line, which is a 'Data' line containing a number's value (from 0-100)
         expected_line_length = 128
@@ -78,12 +80,12 @@ class Audio:
             hex_line = hex_lines[i]
             # check hex_line length
             if len(hex_line) != expected_line_length:
-                raise RuntimeError(f"The file {payload_number_values_hex_path} seems to be corrupted."
+                raise RuntimeError(f"The file {payload.get_relative_file_path()} seems to be corrupted."
                                    f"Expected the hex_line '{hex_lines}' to have a length of {expected_line_length} "
                                    f"characters, but it had {len(hex_line)} characters!")
             # check hex_line containing Data request type ('1207')
             if not hex_line.__contains__(self.__to_hex_str(self.request_type_dict[RequestTypeEnum.DATA])):
-                raise RuntimeError(f"The file {payload_number_values_hex_path} seems to be corrupted."
+                raise RuntimeError(f"The file {payload.get_relative_file_path()} seems to be corrupted."
                                    f"The hex_line '{hex_lines}' does not contain the expected 'DATA' request type:"
                                    f" '{str(self.request_type_dict[RequestTypeEnum.DATA])}'!")
             self.number_value_dict[int(i / 2)] = int(hex_line[12:20], 16)

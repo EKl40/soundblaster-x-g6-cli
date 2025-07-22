@@ -1,3 +1,8 @@
 hidapi==0.14.0
+iniconfig==2.1.0
 packaging==24.0
 pkg-about==1.1.5
+pluggy==1.6.0
+Pygments==2.19.2
+pytest==8.4.1
+setuptools==80.9.0
