@@ -1,0 +1,584 @@
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      7 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request DEVICE                                   
+
+Frame 7: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE (0x000b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x80, Direction: IN
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 8]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: DEVICE (0x01)
+    Language Id: no language specified (0x0000)
+    wLength: 18
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      9 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request CONFIGURATION                            
+
+Frame 9: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE (0x000b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x80, Direction: IN
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 10]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: CONFIGURATION (0x02)
+    Language Id: no language specified (0x0000)
+    wLength: 617
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     11 0.000000       host                  1.2.0                 USB      36     SET CONFIGURATION Request                                       
+
+Frame 11: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_SELECT_CONFIGURATION (0x0000)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 12]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x00
+        0... .... = Direction: Host-to-device
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: SET CONFIGURATION (9)
+    bConfigurationValue: 1
+    wIndex: 0 (0x0000)
+    wLength: 0
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     13 2.926863       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:14:00:00:40:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 13: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff8988132efa20
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 14]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019514000040c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     19 2.927933       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:14:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 19: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812484010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 20]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     23 2.929628       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:15:00:00:80:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 23: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880d956010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 26]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019515000080c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     27 2.930335       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:15:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 27: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812b0e730
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 30]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     33 2.931906       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:16:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 33: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880f078a00
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 36]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     37 2.932464       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:16:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 37: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880fa686a0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 38]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     43 2.934060       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:17:00:00:00:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 43: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812b29010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 46]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951700000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     47 2.934870       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:17:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 47: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880f71a010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 50]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     53 2.936272       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:18:00:00:80:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 53: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880da2b2b0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 54]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951800008040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     57 2.937125       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:18:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 57: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880c3962a0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 60]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     63 2.938507       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:19:00:00:00:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 63: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff8988133c5050
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 64]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019519000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     67 2.939196       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:19:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 67: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880d3472c0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 70]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     73 2.940533       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:1a:00:00:00:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 73: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880f71a010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 74]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951a00000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     77 2.941180       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:1a:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 77: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812b29010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 80]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     83 2.942482       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:1b:00:00:80:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 83: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff8988128a62a0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 84]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951b00008040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     87 2.943192       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:1b:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 87: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880cdeb9f0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 72
+    [Response in: 90]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: HID (0x03)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

@@ -1,0 +1,440 @@
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      7 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request DEVICE                                   
+
+Frame 7: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE (0x000b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x80, Direction: IN
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 8]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: DEVICE (0x01)
+    Language Id: no language specified (0x0000)
+    wLength: 18
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      9 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request CONFIGURATION                            
+
+Frame 9: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE (0x000b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x80, Direction: IN
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 10]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: CONFIGURATION (0x02)
+    Language Id: no language specified (0x0000)
+    wLength: 617
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     11 0.000000       host                  1.2.0                 USB      36     SET CONFIGURATION Request                                       
+
+Frame 11: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0x0000000000000000
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_SELECT_CONFIGURATION (0x0000)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 8
+    [Response in: 12]
+    Control transfer stage: Setup (0)
+Setup Data
+    bmRequestType: 0x00
+        0... .... = Direction: Host-to-device
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: SET CONFIGURATION (9)
+    bConfigurationValue: 1
+    wIndex: 0 (0x0000)
+    wLength: 0
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     13 5.429725       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 00:c0
+
+Frame 13: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 14]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 00c0
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     15 6.163946       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 e7:de
+
+Frame 15: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 16]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: e7de
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     17 6.802402       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 69:e8
+
+Frame 17: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880a68f010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 18]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 69e8
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     19 7.472586       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 37:ee
+
+Frame 19: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 20]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 37ee
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     21 8.094903       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 68:f2
+
+Frame 21: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 22]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 68f2
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     23 8.781350       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 b0:f5
+
+Frame 23: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812103010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 24]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: b0f5
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     25 9.356192       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 62:f8
+
+Frame 25: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89880a68f010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 26]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 62f8
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     27 9.978745       host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 ac:fa
+
+Frame 27: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 28]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: acfa
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     29 10.569222      host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 aa:fc
+
+Frame 29: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff898812103010
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 30]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: aafc
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     31 11.319103      host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 6c:fe
+
+Frame 31: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 32]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 6cfe
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     33 12.005048      host                  1.2.0                 USBAUDIO 38     SET CUR request                                                 00:00
+
+Frame 33: Packet, 38 bytes on wire (304 bits), 38 bytes captured (304 bits) on interface \\.\USBPcap1, id 0
+USB URB
+    [Source: host]
+    [Destination: 1.2.0]
+    USBPcap pseudoheader length: 28
+    IRP ID: 0xffff89881147eaa0
+    IRP USBD_STATUS: USBD_STATUS_SUCCESS (0x00000000)
+    URB Function: URB_FUNCTION_CLASS_INTERFACE (0x001b)
+    IRP information: 0x00, Direction: FDO -> PDO
+    URB bus id: 1
+    Device address: 2
+    Endpoint: 0x00, Direction: OUT
+    URB transfer type: URB_CONTROL (0x02)
+    Packet Data Length: 10
+    [Response in: 34]
+    Control transfer stage: Setup (0)
+    [bInterfaceClass: Audio (0x01)]
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: CUR (0x01)
+    wValue: 0x0201
+    wIndex: 0x0100
+    wLength: 2
+    Unknown Layout Parameter Block
+    Data Fragment: 0000

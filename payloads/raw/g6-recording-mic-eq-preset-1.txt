@@ -1,0 +1,302 @@
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      7 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request DEVICE                                   
+
+Frame 7: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: DEVICE (0x01)
+    Language Id: no language specified (0x0000)
+    wLength: 18
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+      9 0.000000       host                  1.2.0                 USB      36     GET DESCRIPTOR Request CONFIGURATION                            
+
+Frame 9: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x80
+        1... .... = Direction: Device-to-host
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: GET DESCRIPTOR (6)
+    Descriptor Index: 0x00
+    bDescriptorType: CONFIGURATION (0x02)
+    Language Id: no language specified (0x0000)
+    wLength: 617
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     11 0.000000       host                  1.2.0                 USB      36     SET CONFIGURATION Request                                       
+
+Frame 11: Packet, 36 bytes on wire (288 bits), 36 bytes captured (288 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x00
+        0... .... = Direction: Host-to-device
+        .00. .... = Type: Standard (0x0)
+        ...0 0000 = Recipient: Device (0x00)
+    bRequest: SET CONFIGURATION (9)
+    bConfigurationValue: 1
+    wIndex: 0 (0x0000)
+    wLength: 0
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     13 3.126736       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:14:00:00:40:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 13: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019514000040c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     17 3.127640       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:14:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 17: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     23 3.129268       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:15:00:00:80:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 23: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019515000080c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     29 3.130336       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:15:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 29: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     33 3.131830       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:16:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 33: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     37 3.132494       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:16:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 37: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     41 3.133572       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:17:00:00:00:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 41: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951700000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     47 3.134322       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:17:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 47: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     51 3.135612       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:18:00:00:40:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 51: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951800004040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     55 3.136316       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:18:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 55: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     61 3.138506       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:19:00:00:40:c0:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 61: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a1207019519000040c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     65 3.139328       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:19:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 65: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     71 3.140824       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:1a:00:00:80:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 71: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951a00008040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     75 3.141471       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:1a:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 75: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     81 3.143664       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:12:07:01:95:1b:00:00:a0:40:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 81: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a120701951b0000a040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+No.     Time           Source                Destination           Protocol Length Info                                                            Data Fragment
+     85 3.144321       host                  1.2.0                 USBHID   100    SET_REPORT Request                                              5a:11:03:01:95:1b:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+Frame 85: Packet, 100 bytes on wire (800 bits), 100 bytes captured (800 bits) on interface \\.\USBPcap1, id 0
+USB URB
+Setup Data
+    bmRequestType: 0x21
+        0... .... = Direction: Host-to-device
+        .01. .... = Type: Class (0x1)
+        ...0 0001 = Recipient: Interface (0x01)
+    bRequest: SET_REPORT (0x09)
+    wValue: 0x0200
+    wIndex: 4
+    wLength: 64
+    Data Fragment: 5a110301951b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
