@@ -1,176 +1,281 @@
 from enum import Enum
 
-from g6_payload import Payload
+
+class DataFragmentStatic(Enum):
+    PREFIX = 0x5a
+    INTERMEDIATE = 0x0196
 
 
-class StaticsEnum(Enum):
-    PREFIX = 0
-    INTERMEDIATE = 1
+class DataFragmentMode(Enum):
+    DATA = 0x1207
+    COMMIT = 0x1103
 
 
-class RequestTypeEnum(Enum):
-    DATA = 0
-    COMMIT = 1
+class SmartVolumeSpecialHex(Enum):
+    SMART_VOLUME_NIGHT = 0x00000040
+    SMART_VOLUME_LOUD = 0x0000803f
 
 
-class AudioFeatureEnum(Enum):
-    SURROUND = 0
-    CRYSTALIZER = 1
-    BASS = 2
-    SMART_VOLUME = 3
-    DIALOG_PLUS = 4
+class AudioFeature(Enum):
+    SURROUND_TOGGLE = 0x00,
+    SURROUND_SLIDER = 0x01,
+    CRYSTALIZER_TOGGLE = 0x07,
+    CRYSTALIZER_SLIDER = 0x08,
+    BASS_TOGGLE = 0x18,
+    BASS_SLIDER = 0x19,
+    SMART_VOLUME_TOGGLE = 0x04,
+    SMART_VOLUME_SLIDER = 0x05,
+    SMART_VOLUME_SPECIAL = 0x06
+    DIALOG_PLUS_TOGGLE = 0x02,
+    DIALOG_PLUS_SLIDER = 0x03
 
 
-class AudioFeatureSpecialValueEnum(Enum):
-    SMART_VOLUME_NIGHT = 0
-    SMART_VOLUME_LOUD = 1
+class UsbAudioData:
+    def __init__(self, b_request: int, w_value: int, w_index: int, w_length: int, data_fragment: int):
+        self.__bmRequestType = to_hex_str(0x21).zfill(2)
+        self.__bRequest = to_hex_str(b_request).zfill(2)
+        self.__wValue = to_hex_str(w_value).zfill(4)
+        self.__wIndex = to_hex_str(w_index).zfill(4)
+        self.__wLength = to_hex_str(w_length).zfill(4)
+        self.__data_fragment = to_hex_str(data_fragment)
 
 
-class AudioFeature:
-    def __init__(self, toggle_hex, slider_hex):
-        self.toggle_hex = toggle_hex
-        self.slider_hex = slider_hex
+class UsbHidDataFragment:
+    def __init__(self, mode: DataFragmentMode, audio_feature: AudioFeature, value: int):
+        self.__static_prefix = to_hex_str(DataFragmentStatic.PREFIX.value).zfill(2)
+        self.__mode = to_hex_str(mode.value).zfill(4)
+        self.__static_intermediate = to_hex_str(DataFragmentStatic.INTERMEDIATE.value).zfill(4)
+        self.__audio_feature = to_hex_str(audio_feature.value[0]).zfill(2)
+        self.__value = to_hex_str(value).zfill(8)
+        self.__additional_payload = ''.zfill(56)
 
+    def __str__(self):
+        return f'{self.__static_prefix}{self.__mode}{self.__static_intermediate}{self.__audio_feature}{self.__value}{self.__additional_payload}'
 
-class AudioFeatureExtended(AudioFeature):
-    def __init__(self, toggle_hex, slider_hex, slider_special_hex, slider_special_enabled_value_hex,
-                 slider_special_disabled_value_hex):
-        super().__init__(toggle_hex, slider_hex)
-        self.slider_special_hex = slider_special_hex
-        self.slider_special_enabled_value_hex = slider_special_enabled_value_hex
-        self.slider_special_disabled_value_hex = slider_special_disabled_value_hex
+    def __repr__(self):
+        return self.__str__()
 
 
 class Audio:
     def __init__(self):
-        # TODO record hex values with wireshark and define constants for new models from g6-ui
-        # define static hex values
-        self.static_dict = {
-            StaticsEnum.PREFIX: 0x5a,
-            StaticsEnum.INTERMEDIATE: 0x0196
+        self.__slider_percent_to_hex: dict[int, int] = {
+            0: 0x00000000,
+            1: 0x0ad7233c,
+            2: 0x0ad7a33c,
+            3: 0x8fc2f53c,
+            4: 0x0ad7233d,
+            5: 0xcdcc4c3d,
+            6: 0x8fc2753d,
+            7: 0x295c8f3d,
+            8: 0x0ad7a33d,
+            9: 0xec51b83d,
+            10: 0xcdcccc3d,
+            11: 0xae47e13d,
+            12: 0x8fc2f53d,
+            13: 0xb81e053e,
+            14: 0x295c0f3e,
+            15: 0x9a99193e,
+            16: 0x0ad7233e,
+            17: 0x7b142e3e,
+            18: 0xec51383e,
+            19: 0x5c8f423e,
+            20: 0xcdcc4c3e,
+            21: 0x3d0a573e,
+            22: 0xae47613e,
+            23: 0x1f856b3e,
+            24: 0x8fc2753e,
+            25: 0x0000803e,
+            26: 0xb81e853e,
+            27: 0x713d8a3e,
+            28: 0x295c8f3e,
+            29: 0xe17a943e,
+            30: 0x9a99993e,
+            31: 0x52b89e3e,
+            32: 0x0ad7a33e,
+            33: 0xc3f5a83e,
+            34: 0x7b14ae3e,
+            35: 0x3333b33e,
+            36: 0xec51b83e,
+            37: 0xa470bd3e,
+            38: 0x5c8fc23e,
+            39: 0x14aec73e,
+            40: 0xcdcccc3e,
+            41: 0x85ebd13e,
+            42: 0x3d0ad73e,
+            43: 0xf628dc3e,
+            44: 0xae47e13e,
+            45: 0x6666e63e,
+            46: 0x1f85eb3e,
+            47: 0xd7a3f03e,
+            48: 0x8fc2f53e,
+            49: 0x48e1fa3e,
+            50: 0x0000003f,
+            51: 0x5c8f023f,
+            52: 0xb81e053f,
+            53: 0x14ae073f,
+            54: 0x713d0a3f,
+            55: 0xcdcc0c3f,
+            56: 0x295c0f3f,
+            57: 0x85eb113f,
+            58: 0xe17a143f,
+            59: 0x3d0a173f,
+            60: 0x9a99193f,
+            61: 0xf6281c3f,
+            62: 0x52b81e3f,
+            63: 0xae47213f,
+            64: 0x0ad7233f,
+            65: 0x6666263f,
+            66: 0xc3f5283f,
+            67: 0x1f852b3f,
+            68: 0x7b142e3f,
+            69: 0xd7a3303f,
+            70: 0x3333333f,
+            71: 0x8fc2353f,
+            72: 0xec51383f,
+            73: 0x48e13a3f,
+            74: 0xa4703d3f,
+            75: 0x0000403f,
+            76: 0x5c8f423f,
+            77: 0xb81e453f,
+            78: 0x14ae473f,
+            79: 0x713d4a3f,
+            80: 0xcdcc4c3f,
+            81: 0x295c4f3f,
+            82: 0x85eb513f,
+            83: 0xe17a543f,
+            84: 0x3d0a573f,
+            85: 0x9a99593f,
+            86: 0xf6285c3f,
+            87: 0x52b85e3f,
+            88: 0xae47613f,
+            89: 0x0ad7633f,
+            90: 0x6666663f,
+            91: 0xc3f5683f,
+            92: 0x1f856b3f,
+            93: 0x7b146e3f,
+            94: 0xd7a3703f,
+            95: 0x3333733f,
+            96: 0x8fc2753f,
+            97: 0xec51783f,
+            98: 0x48e17a3f,
+            99: 0xa4707d3f,
+            100: 0x0000803f,
         }
-        # define request type hex values
-        self.request_type_dict = {
-            RequestTypeEnum.DATA: 0x1207,
-            RequestTypeEnum.COMMIT: 0x1103
+        self.__playback_volume_percent_to_hex: dict[int, int] = {
+            0: 0x00c0,
+            10: 0xe7de,
+            20: 0x69e8,
+            30: 0x37ee,
+            40: 0x68f2,
+            50: 0xb0f5,
+            60: 0x62f8,
+            70: 0xacfa,
+            80: 0xaafc,
+            90: 0x6cfe,
+            100: 0x0000,
         }
-        # define audio feature hex values
-        self.audio_feature_dict = {
-            AudioFeatureEnum.SURROUND: AudioFeature(0x00, 0x01),
-            AudioFeatureEnum.CRYSTALIZER: AudioFeature(0x07, 0x08),
-            AudioFeatureEnum.BASS: AudioFeature(0x18, 0x19),
-            AudioFeatureEnum.SMART_VOLUME: AudioFeatureExtended(0x04, 0x05, 0x06,
-                                                                0x0000803f,
-                                                                0x00000040),
-            AudioFeatureEnum.DIALOG_PLUS: AudioFeature(0x02, 0x03)
+        self.__mic_recording_volume_percent_to_hex: dict[int, int] = {
+            0: 0x00d0,
+            10: 0x2ee6,
+            20: 0xd7ee,
+            30: 0x52f4,
+            40: 0x57f8,
+            50: 0x84fb,
+            60: 0x25fe,
+            70: 0x6400,
+            80: 0xc202,
+            90: 0x8f05,
+            100: 0x0009,
         }
-        # parse number hex values
-        self.number_value_dict = {}
-        payload = Payload.ZERO_TO_ONE_HUNDRED
-        hex_lines = payload.read_hex_lines()
-        # check the file's number of lines
-        expected_line_count = 202
-        if not len(hex_lines) == expected_line_count:
-            raise RuntimeError(
-                f"The file {payload.get_relative_file_path()} seems to be corrupted, since it does not contain the "
-                f"expected {expected_line_count} lines! Aborting execution.")
-        # read from every even line, which is a 'Data' line containing a number's value (from 0-100)
-        expected_line_length = 128
-        for i in range(0, len(hex_lines), 2):
-            hex_line = hex_lines[i]
-            # check hex_line length
-            if len(hex_line) != expected_line_length:
-                raise RuntimeError(f"The file {payload.get_relative_file_path()} seems to be corrupted."
-                                   f"Expected the hex_line '{hex_lines}' to have a length of {expected_line_length} "
-                                   f"characters, but it had {len(hex_line)} characters!")
-            # check hex_line containing Data request type ('1207')
-            if not hex_line.__contains__(self.__to_hex_str(self.request_type_dict[RequestTypeEnum.DATA])):
-                raise RuntimeError(f"The file {payload.get_relative_file_path()} seems to be corrupted."
-                                   f"The hex_line '{hex_lines}' does not contain the expected 'DATA' request type:"
-                                   f" '{str(self.request_type_dict[RequestTypeEnum.DATA])}'!")
-            self.number_value_dict[int(i / 2)] = int(hex_line[12:20], 16)
+        self.__mic_monitoring_volume_percent_to_hex: dict[int, int] = self.__playback_volume_percent_to_hex
+        self.__mic_boost_decibel_to_hex: dict[int, int] = {
+            0: 0x0000,
+            10: 0x0a000000,
+            20: 0x14000000,
+            30: 0x1e000000
+        }
 
-    def build_hex_lines_toggle(self, audio_feature_enum, enabled):
+    def build_hex_lines_toggle(self, audio_feature: AudioFeature, enabled: bool):
         """
         Build a list of 64 byte hex-line commands for the given AudioFeature's toggle.
-        :param audio_feature_enum: the enum value of the AudioFeature to build the hex-line for
+        :param audio_feature: the enum value of the AudioFeature to build the hex-line for
         :param enabled: the boolean value, whether to enable or disable the AudioFeature.
-        :return: a list of hex-line commands, designated being sent to the G6.
+        :return: a list of hex-line commands, designated to being sent to the G6.
         """
-        if type(audio_feature_enum) is not AudioFeatureEnum:
-            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeatureEnum)}\','
-                             f' but was \'{type(audio_feature_enum)}\'!')
+        if type(audio_feature) is not AudioFeature:
+            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeature)}\','
+                             f' but was \'{type(audio_feature)}\'!')
         if type(enabled) is not bool:
             raise ValueError(f'Argument \'enabled\' should be of type \'{type(bool)}\','
                              f' but was \'{type(enabled)}\'!')
 
-        audio_feature_hex = self.audio_feature_dict[audio_feature_enum].toggle_hex
-        value_hex = self.number_value_dict[100] if enabled else self.number_value_dict[0]
+        audio_feature_hex = audio_feature.value[0]
+        value_hex = self.__slider_percent_to_hex[100] if enabled else self.__slider_percent_to_hex[0]
 
         return [
-            self.__build_hex_line(RequestTypeEnum.DATA, audio_feature_hex, value_hex),
-            self.__build_hex_line(RequestTypeEnum.COMMIT, audio_feature_hex, 0)
+            self.__build_hex_line(DataFragmentMode.DATA, audio_feature_hex, value_hex),
+            self.__build_hex_line(DataFragmentMode.COMMIT, audio_feature_hex, 0)
         ]
 
-    def build_hex_lines_slider(self, audio_feature_enum, value):
+    def build_hex_lines_slider(self, audio_feature: AudioFeature, value: int):
         """
         Build a list of 64 byte hex-line commands for the given AudioFeature's slider value.
-        :param audio_feature_enum: the enum value of the AudioFeature to build the hex-line for
+        :param audio_feature: the enum value of the AudioFeature to build the hex-line for
         :param value: the integer value for the slider of the corresponding AudioFeature (0 - 100)
-        :return: a list of hex-line commands, designated being sent to the G6.
+        :return: a list of hex-line commands, designated to being sent to the G6.
         """
-        if type(audio_feature_enum) is not AudioFeatureEnum:
-            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeatureEnum)}\','
-                             f' but was \'{type(audio_feature_enum)}\'!')
+        if type(audio_feature) is not AudioFeature:
+            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeature)}\','
+                             f' but was \'{type(audio_feature)}\'!')
         if type(value) is not int:
             raise ValueError(f'Argument \'value\' should be of type \'{type(int)}\','
                              f' but was \'{type(value)}\'!')
         if value < 0 or value > 100:
             raise ValueError(f'Argument \'value\' should be between \'0\' and \'100\', but was \'{value}\'!')
 
-        audio_feature_hex = self.audio_feature_dict[audio_feature_enum].slider_hex
-        value_hex = self.number_value_dict[value]
+        audio_feature_hex = audio_feature.value[0]
+        value_hex = self.__slider_percent_to_hex[value]
 
         return [
-            self.__build_hex_line(RequestTypeEnum.DATA, audio_feature_hex, value_hex),
-            self.__build_hex_line(RequestTypeEnum.COMMIT, audio_feature_hex, 0)
+            self.__build_hex_line(DataFragmentMode.DATA, audio_feature_hex, value_hex),
+            self.__build_hex_line(DataFragmentMode.COMMIT, audio_feature_hex, 0)
         ]
 
-    def build_hex_lines_slider_special(self, audio_feature_enum, audio_feature_special_value_enum):
+    def build_hex_lines_slider_special(self, audio_feature: AudioFeature,
+                                       smart_volume_special_hex: SmartVolumeSpecialHex):
         """
         Build a list of 64 byte hex-line commands for the given AudioFeature's slider special value.
-        :param audio_feature_enum: the enum value of the AudioFeature to build the hex-line for
-        :param audio_feature_special_value_enum: the value to set as AudioFeatureSpecialValueEnum enum value
-        :return: a list of hex-line commands, designated being sent to the G6.
+        :param audio_feature: the enum value of the AudioFeature to build the hex-line for
+        :param smart_volume_special_hex: the value to set as SmartVolumeSpecialHex enum value
+        :return: a list of hex-line commands, designated to being sent to the G6.
         """
-        if type(audio_feature_enum) is not AudioFeatureEnum:
-            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeatureEnum)}\','
-                             f' but was \'{type(audio_feature_enum)}\'!')
-        if type(audio_feature_special_value_enum) is not AudioFeatureSpecialValueEnum:
+        if type(audio_feature) is not AudioFeature:
+            raise ValueError(f'Argument \'audio_feature_enum\' should be of type \'{type(AudioFeature)}\','
+                             f' but was \'{type(audio_feature)}\'!')
+        if type(smart_volume_special_hex) is not SmartVolumeSpecialHex:
             raise ValueError(f'Argument \'audio_feature_special_value_enum\' should be of type '
-                             f'\'{type(AudioFeatureSpecialValueEnum)}\','
-                             f' but was \'{type(audio_feature_special_value_enum)}\'!')
+                             f'\'{type(SmartVolumeSpecialHex)}\','
+                             f' but was \'{type(smart_volume_special_hex)}\'!')
 
-        if audio_feature_enum is AudioFeatureEnum.SMART_VOLUME and \
-                (audio_feature_special_value_enum is AudioFeatureSpecialValueEnum.SMART_VOLUME_NIGHT
-                 or audio_feature_special_value_enum is AudioFeatureSpecialValueEnum.SMART_VOLUME_LOUD):
-            audio_feature_hex = self.audio_feature_dict[audio_feature_enum].slider_special_hex
-            value_hex = self.audio_feature_dict[audio_feature_enum].slider_special_enabled_value_hex \
-                if audio_feature_special_value_enum is AudioFeatureSpecialValueEnum.SMART_VOLUME_LOUD \
-                else self.audio_feature_dict[audio_feature_enum].slider_special_disabled_value_hex
+        if audio_feature is AudioFeature.SMART_VOLUME_SPECIAL and \
+                (smart_volume_special_hex is SmartVolumeSpecialHex.SMART_VOLUME_NIGHT
+                 or smart_volume_special_hex is SmartVolumeSpecialHex.SMART_VOLUME_LOUD):
+            audio_feature_hex = audio_feature.value[0]
+            value_hex = smart_volume_special_hex.value[0]
         else:
-            raise ValueError(f'Unexpected combination of audio_feature_enum \'{audio_feature_enum}\' and '
-                             f'audio_feature_special_value_enum \'{audio_feature_special_value_enum}\'!')
+            raise ValueError(f'Unexpected combination of audio_feature_enum \'{audio_feature}\' and '
+                             f'audio_feature_special_value_enum \'{smart_volume_special_hex}\'!')
 
         return [
-            self.__build_hex_line(RequestTypeEnum.DATA, audio_feature_hex, value_hex),
-            self.__build_hex_line(RequestTypeEnum.COMMIT, audio_feature_hex, 0)
+            self.__build_hex_line(DataFragmentMode.DATA, audio_feature_hex, value_hex),
+            self.__build_hex_line(DataFragmentMode.COMMIT, audio_feature_hex, 0)
         ]
 
-    def __build_hex_line(self, request_type_enum, audio_feature_hex, value_hex):
-        if type(request_type_enum) is not RequestTypeEnum:
-            raise ValueError(f'Argument \'request_type_enum\' should be of type \'{type(RequestTypeEnum)}\','
-                             f' but was \'{type(request_type_enum)}\'!')
+    @staticmethod
+    def __build_hex_line(data_fragment_mode: DataFragmentMode, audio_feature_hex: int, value_hex: int):
+        if type(data_fragment_mode) is not DataFragmentMode:
+            raise ValueError(f'Argument \'data_fragment_mode\' should be of type \'{type(DataFragmentMode)}\','
+                             f' but was \'{type(data_fragment_mode)}\'!')
         if type(audio_feature_hex) is not int:
             raise ValueError(f'Argument \'audio_feature_hex\' should be of type \'{type(int)}\','
                              f' but was \'{type(audio_feature_hex)}\'!')
@@ -178,13 +283,14 @@ class Audio:
             raise ValueError(f'Argument \'value_hex\' should be of type \'{type(int)}\','
                              f' but was \'{type(value_hex)}\'!')
 
-        static_prefix = self.__to_hex_str(self.static_dict[StaticsEnum.PREFIX]).zfill(2)
-        request_type = self.__to_hex_str(self.request_type_dict[request_type_enum]).zfill(4)
-        static_intermediate = self.__to_hex_str(self.static_dict[StaticsEnum.INTERMEDIATE]).zfill(4)
-        audio_feature = self.__to_hex_str(audio_feature_hex).zfill(2)
-        value = self.__to_hex_str(value_hex).zfill(8)
+        static_prefix = to_hex_str(DataFragmentStatic.PREFIX.value).zfill(2)
+        mode = to_hex_str(data_fragment_mode.value).zfill(4)
+        static_intermediate = to_hex_str(DataFragmentStatic.INTERMEDIATE.value).zfill(4)
 
-        assembled = f'{static_prefix}{request_type}{static_intermediate}{audio_feature}{value}'
+        audio_feature = to_hex_str(audio_feature_hex).zfill(2)
+        value = to_hex_str(value_hex).zfill(8)
+
+        assembled = f'{static_prefix}{mode}{static_intermediate}{audio_feature}{value}'
         assembled_len = len(assembled)
         if assembled_len != 20:
             raise RuntimeError(f'The assembled hex_line part should have 20 characters, but it'
@@ -198,6 +304,32 @@ class Audio:
 
         return hex_line
 
-    @staticmethod
-    def __to_hex_str(int_value):
-        return format(int_value, 'x')
+
+def to_hex_str(int_value):
+    return format(int_value, 'x')
+
+
+class SbxProfile:
+    def __init__(self):
+        pass
+
+
+class Playback:
+    def __init__(self):
+        pass
+
+
+class Recording:
+    pass
+
+
+class Decoder:
+    pass
+
+
+class Mixer:
+    pass
+
+
+class Lighting:
+    pass

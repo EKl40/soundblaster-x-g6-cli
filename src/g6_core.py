@@ -3,7 +3,7 @@ import re
 import hid
 
 from g6_payload import PAYLOAD_HEX_LINE_PATTERN
-from g6_spec import AudioFeatureEnum, AudioFeatureSpecialValueEnum
+from g6_spec import AudioFeature, SmartVolumeSpecialHex
 from g6_util import to_bool
 
 # G6 specific USB information
@@ -151,47 +151,51 @@ def device_set_audio_effects(device_path, audio, args):
     """
     # surround
     if args.set_surround is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeatureEnum.SURROUND, to_bool(args.set_surround))
+        hex_lines = audio.build_hex_lines_toggle(AudioFeature.SURROUND_TOGGLE, to_bool(args.set_surround))
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_surround_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeatureEnum.SURROUND, args.set_surround_value)
+        hex_lines = audio.build_hex_lines_slider(AudioFeature.SURROUND_SLIDER, args.set_surround_value)
         send_to_device(device_path, hex_lines, args.dry_run)
+
     # crystalizer
     if args.set_crystalizer is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeatureEnum.CRYSTALIZER, to_bool(args.set_crystalizer))
+        hex_lines = audio.build_hex_lines_toggle(AudioFeature.CRYSTALIZER_TOGGLE, to_bool(args.set_crystalizer))
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_crystalizer_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeatureEnum.CRYSTALIZER, args.set_crystalizer_value)
+        hex_lines = audio.build_hex_lines_slider(AudioFeature.CRYSTALIZER_SLIDER, args.set_crystalizer_value)
         send_to_device(device_path, hex_lines, args.dry_run)
+
     # bass
     if args.set_bass is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeatureEnum.BASS, to_bool(args.set_bass))
+        hex_lines = audio.build_hex_lines_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.set_bass))
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_bass_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeatureEnum.BASS, args.set_bass_value)
+        hex_lines = audio.build_hex_lines_slider(AudioFeature.BASS_SLIDER, args.set_bass_value)
         send_to_device(device_path, hex_lines, args.dry_run)
+
     # smart-volume
     if args.set_smart_volume is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeatureEnum.SMART_VOLUME, to_bool(args.set_smart_volume))
+        hex_lines = audio.build_hex_lines_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.set_smart_volume))
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_smart_volume_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeatureEnum.SMART_VOLUME, args.set_smart_volume_value)
+        hex_lines = audio.build_hex_lines_slider(AudioFeature.SMART_VOLUME_SLIDER, args.set_smart_volume_value)
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_smart_volume_special_value is not None:
-        smart_volume_special_value = None
+        smart_volume_special_value: SmartVolumeSpecialHex
         if args.set_smart_volume_special_value == 'Night':
-            smart_volume_special_value = AudioFeatureSpecialValueEnum.SMART_VOLUME_NIGHT
+            smart_volume_special_value = SmartVolumeSpecialHex.SMART_VOLUME_NIGHT
         elif args.set_smart_volume_special_value == 'Loud':
-            smart_volume_special_value = AudioFeatureSpecialValueEnum.SMART_VOLUME_LOUD
+            smart_volume_special_value = SmartVolumeSpecialHex.SMART_VOLUME_LOUD
         else:
             raise ValueError(f'Expected one of the following values for --smart-volume-special-value: '
                              f'[\'Night\', \'Loud\'], but was \'{args.set_smart_volume_special_value}\'!')
-        hex_lines = audio.build_hex_lines_slider_special(AudioFeatureEnum.SMART_VOLUME, smart_volume_special_value)
+        hex_lines = audio.build_hex_lines_slider_special(AudioFeature.SMART_VOLUME_SPECIAL, smart_volume_special_value)
         send_to_device(device_path, hex_lines, args.dry_run)
+
     # dialog-plus
     if args.set_dialog_plus is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeatureEnum.DIALOG_PLUS, to_bool(args.set_dialog_plus))
+        hex_lines = audio.build_hex_lines_toggle(AudioFeature.DIALOG_PLUS_TOGGLE, to_bool(args.set_dialog_plus))
         send_to_device(device_path, hex_lines, args.dry_run)
     if args.set_dialog_plus_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeatureEnum.DIALOG_PLUS, args.set_dialog_plus_value)
+        hex_lines = audio.build_hex_lines_slider(AudioFeature.DIALOG_PLUS_SLIDER, args.set_dialog_plus_value)
         send_to_device(device_path, hex_lines, args.dry_run)
