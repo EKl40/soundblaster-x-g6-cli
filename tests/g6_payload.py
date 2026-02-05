@@ -3,7 +3,7 @@
 import os
 import re
 import pytest
-from g6_cli.g6_api.g6_payload import Payload  # Adjust the import to match your module
+from g6_cli.g6_payload import Payload  # Adjust the import to match your module
 
 
 @pytest.mark.parametrize("payload", list(Payload))

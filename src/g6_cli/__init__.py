@@ -2,8 +2,8 @@ import argparse
 import os.path
 import tempfile
 
-from g6_cli.g6_api.g6_core import send_to_device, detect_device, device_set_audio_effects
-from g6_cli.g6_api.g6_payload import Payload
+from g6_cli.g6_core import send_to_device, detect_device, device_set_audio_effects
+from g6_cli.g6_payload import Payload
 from g6_cli.g6_spec import Audio
 
 # The name of the temporary file to remember the last toggle state in. If the file could not be found. The program
