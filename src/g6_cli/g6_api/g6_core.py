@@ -2,9 +2,9 @@ import re
 
 import hid
 
-from g6_payload import PAYLOAD_HEX_LINE_PATTERN
-from g6_spec import AudioFeature, SmartVolumeSpecialHex
-from g6_util import to_bool
+from g6_cli.g6_api.g6_payload import PAYLOAD_HEX_LINE_PATTERN
+from g6_cli.g6_spec import AudioFeature, SmartVolumeSpecialHex
+from g6_cli.g6_util import to_bool
 
 # G6 specific USB information
 G6_VENDOR_ID = 0x041e
