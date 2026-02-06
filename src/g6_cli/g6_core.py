@@ -2,31 +2,47 @@ import re
 
 import hid
 
-from g6_cli.g6_payload import PAYLOAD_HEX_LINE_PATTERN
-from g6_cli.g6_spec import AudioFeature, SmartVolumeSpecialHex
-from g6_cli.g6_util import to_bool
+from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment
 
 # G6 specific USB information
 G6_VENDOR_ID = 0x041e
 G6_PRODUCT_ID = 0x3256
-# The G6 has four interface (2 Audio and 2 HID), the endpoint of the fourth interface is used by SoundBlaster Connect.
-# So will we, since data sent to the third interface is ignored by the device.
-G6_INTERFACE = 4
+# The G6 has five interfaces: 1 Audio Control, 2 Audio Streams and 2 HIDs.
+# The endpoint of the first interface is used for audio control.
+# The endpoint of the fourth interface is used by SoundBlaster Connect for HID communication - so
+# will we, since data sent to the third interface is ignored by the device.
+G6_AUDIO_CONTROL_INTERFACE = 0
+G6_HID_INTERFACE = 4
 
 # The udev rule to create in /etc/udev/rules.d/50-soundblaster-x-g6.rules
 UDEV_RULE = r'SUBSYSTEM=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="3256", TAG+="uaccess"'
 
+# The payloads available to send to the G6
+PAYLOAD_HEX_LINE_PATTERN = r'^[a-f0-9]{128}$'
 
-def detect_device():
+
+class G6Device:
+    def __init__(self, device_path_audio_interface: str, device_path_hid_interface: str):
+        self.__device_path_audio_interface = device_path_audio_interface
+        self.__device_path_hid_interface = device_path_hid_interface
+
+    def get_device_path_audio_interface(self) -> str:
+        return self.__device_path_audio_interface
+
+    def get_device_path_hid_interface(self) -> str:
+        return self.__device_path_hid_interface
+
+
+def detect_device() -> G6Device:
     """
     Tries to detect the SoundBlaster X G6 device and returns the device path to it.
 
-    From all connected USB HID devices, we filter all devices which do not match the desired vendor_id and product_id.
-    Since we know, that we have to communicate with USB-Interface 4, we also filter all other interfaces of the device.
-    This approach is required, because the G6's endpoint of the third HID interface ignores any data transmitted to
-    it. We have to use the endpoint of the fourth interface!
+    From all connected USB HID devices, we filter all devices that do not match the desired vendor_id and product_id.
+    Since we know, that we have to communicate with USB-Interface 0 (AudioControl) and 4 (HID), we also filter all
+    other interfaces of the device. This approach is required, because the G6's endpoint of USB-Interface 3 (HID)
+    ignores any data transmitted to it. We have to use the endpoint of the fourth interface!
 
-    If the device itself or the fourth interface could not be found, an IOError is risen to let the program terminate.
+    If the device itself or the required interfaces could not be found, an IOError is risen to let the program terminate.
 
     Example for a device_path: "b'5-2.1:1.4'"
     - Bus 5
@@ -38,19 +54,38 @@ def detect_device():
     A tree output of all connected USB devices can be generated with the command `lsusb -t`.
     :return: The unique device_path to the G6.
     """
+    # Try to detect the G6 device's interface paths.
     device_found = False
+    device_path_audio_interface: str = ''
+    device_path_hid_interface: str = ''
     for device_dict in hid.enumerate():
-        if device_dict['vendor_id'] == G6_VENDOR_ID and device_dict['product_id']:
+        if device_dict['vendor_id'] == G6_VENDOR_ID and device_dict['product_id'] == G6_PRODUCT_ID:
             device_found = True
-            if G6_PRODUCT_ID and device_dict['interface_number'] == G6_INTERFACE:
-                device_path = device_dict['path']
-                print(f'Device detected at path: {device_path}')
-                return device_path
+            if device_dict['interface_number'] == G6_AUDIO_CONTROL_INTERFACE:
+                device_path_audio_interface = device_dict['path']
+                print(f'Device with AudioControl interface detected at path: {device_path_audio_interface}')
+            if device_dict['interface_number'] == G6_HID_INTERFACE:
+                device_path_hid_interface = device_dict['path']
+                print(f'Device with HID interface detected at path: {device_path_hid_interface}')
+
+    # Return a G6Device object if both interfaces were found. Otherwise, raise an IOError.
+    if not device_path_hid_interface == '' and not device_path_audio_interface == '':
+        return G6Device(device_path_audio_interface=device_path_audio_interface,
+                        device_path_hid_interface=device_path_hid_interface)
+
+    # If the device itself or the fourth interface could not be found, an IOError is risen to let the program terminate.
     if device_found:
+        if device_path_hid_interface == '':
+            raise IOError(f"The SoundBlaster X G6 device could be found having vendor_id='{G6_VENDOR_ID:#x}' and "
+                          f"product_id='{G6_PRODUCT_ID:#x}'. But the required HID interface does not seem to be "
+                          f"available. Something is wrong here, and thus, the program execution is terminated!")
+        if device_path_audio_interface == '':
+            raise IOError(f"The SoundBlaster X G6 device could be found having vendor_id='{G6_VENDOR_ID:#x}' and "
+                          f"product_id='{G6_PRODUCT_ID:#x}'. But the required AudioControl interface does not "
+                          f"seem to be available. Something is wrong here, and thus, the program execution is terminated!")
         raise IOError(
             f"The SoundBlaster X G6 device could be found having vendor_id='{G6_VENDOR_ID:#x}' and product_id"
-            f"='{G6_PRODUCT_ID:#x}'. But the required fourth HDI interface does not seem to be available. "
-            f"Something is wrong here, and thus, the program execution is terminated!")
+            f"='{G6_PRODUCT_ID:#x}'. But the program got into an illegal state, and thus, it is terminated!")
     else:
         raise IOError(
             f"No SoundBlaster X G6 device could be found having vendor_id='{G6_VENDOR_ID:#x}' and "
@@ -70,7 +105,7 @@ def list_all_devices():
         print()
 
 
-def send_to_device(device_path, payload_hex_lines, dry_run):
+def send_to_device(device_path: str, payload_hex_lines: list[str], dry_run: bool) -> None:
     """
     Send the payload_hex_lines to an endpoint from the usb device, identified by the device_path.
     :param device_path: The detected usb device path for the G6.
@@ -141,61 +176,22 @@ def send_to_device(device_path, payload_hex_lines, dry_run):
         print("`sudo udevadm trigger`")
 
 
-# TODO G6 gui will call this method
-def device_set_audio_effects(device_path, audio, args):
+def send_audio_data_to_device(device: G6Device, audio_data_list: list[UsbAudioData], dry_run: bool) -> None:
     """
-    Sends all as CLI args given audio effects to the device.
-    :param device_path: The detected usb device path for the G6.
-    :param audio: An instance of the class Audio from g6_spec.py
-    :param args: the CLI arguments, recently parsed by argparse in parse_cli_args()
+    Convert the audio_data_list to a list of hex strings and send them to the device.
+    :param device: The detected usb device path for the G6.
+    :param audio_data_list: The list of UsbAudioData objects to send to the G6.
+    :param dry_run: Whether to simulate communication with the device for program testing purposes.
     """
-    # surround
-    if args.set_surround is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeature.SURROUND_TOGGLE, to_bool(args.set_surround))
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_surround_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeature.SURROUND_SLIDER, args.set_surround_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
+    send_to_device(device.get_device_path_audio_interface(), [audio_data.__str__() for audio_data in audio_data_list],
+                   dry_run)
 
-    # crystalizer
-    if args.set_crystalizer is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeature.CRYSTALIZER_TOGGLE, to_bool(args.set_crystalizer))
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_crystalizer_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeature.CRYSTALIZER_SLIDER, args.set_crystalizer_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
 
-    # bass
-    if args.set_bass is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.set_bass))
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_bass_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeature.BASS_SLIDER, args.set_bass_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
-
-    # smart-volume
-    if args.set_smart_volume is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.set_smart_volume))
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_smart_volume_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeature.SMART_VOLUME_SLIDER, args.set_smart_volume_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_smart_volume_special_value is not None:
-        smart_volume_special_value: SmartVolumeSpecialHex
-        if args.set_smart_volume_special_value == 'Night':
-            smart_volume_special_value = SmartVolumeSpecialHex.SMART_VOLUME_NIGHT
-        elif args.set_smart_volume_special_value == 'Loud':
-            smart_volume_special_value = SmartVolumeSpecialHex.SMART_VOLUME_LOUD
-        else:
-            raise ValueError(f'Expected one of the following values for --smart-volume-special-value: '
-                             f'[\'Night\', \'Loud\'], but was \'{args.set_smart_volume_special_value}\'!')
-        hex_lines = audio.build_hex_lines_slider_special(AudioFeature.SMART_VOLUME_SPECIAL, smart_volume_special_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
-
-    # dialog-plus
-    if args.set_dialog_plus is not None:
-        hex_lines = audio.build_hex_lines_toggle(AudioFeature.DIALOG_PLUS_TOGGLE, to_bool(args.set_dialog_plus))
-        send_to_device(device_path, hex_lines, args.dry_run)
-    if args.set_dialog_plus_value is not None:
-        hex_lines = audio.build_hex_lines_slider(AudioFeature.DIALOG_PLUS_SLIDER, args.set_dialog_plus_value)
-        send_to_device(device_path, hex_lines, args.dry_run)
+def send_hid_data_to_device(device: G6Device, hid_data_list: list[UsbHidDataFragment], dry_run: bool) -> None:
+    """
+    Convert the hid_data_list to a list of hex strings and send them to the device.
+    :param device: The detected usb device path for the G6.
+    :param hid_data_list: The list of UsbHidDataFragment objects to send to the G6.
+    :param dry_run: Whether to simulate communication with the device for program testing purposes.
+    """
+    send_to_device(device.get_device_path_hid_interface(), [hid_data.__str__() for hid_data in hid_data_list], dry_run)

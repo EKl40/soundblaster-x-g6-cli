@@ -2,9 +2,10 @@ import argparse
 import os.path
 import tempfile
 
-from g6_cli.g6_core import send_to_device, detect_device, device_set_audio_effects
-from g6_cli.g6_payload import Payload
-from g6_cli.g6_spec import Audio
+from g6_cli.g6_api import G6Api
+from g6_cli.g6_core import send_to_device, detect_device
+from g6_cli.g6_spec import AudioFeature, SmartVolumeSpecialHex
+from g6_cli.g6_util import to_bool
 
 # The name of the temporary file to remember the last toggle state in. If the file could not be found. The program
 # lets the G6 to toggle to Speakers by default.
@@ -141,61 +142,91 @@ def determine_toggle_state():
     return next_toggle_state
 
 
-def device_toggle_output(device_path, dry_run):
+def device_toggle_output(api: G6Api):
     """
     Toggles the device's output. Either Speakers -> Headphones or Headphones -> Speakers.
-    :param device_path: The detected usb device path for the G6.
-    :param dry_run: whether to simulate communication with the device for program testing purposes.
-                    If set to true, no data is sent to the G6!
+    :param api: The G6Api instance to use for communication with the device.
     """
-    # determine next toggle state
+    # determine the next toggle state
     toggle_state = determine_toggle_state()
-    # determine payload to load
-    payload = Payload.TOGGLE_OUTPUT_TO_SPEAKERS \
-        if toggle_state == TOGGLE_STATE_HEADPHONES \
-        else Payload.TOGGLE_OUTPUT_TO_HEADPHONES
-    # read payload from file
-    payload_hex_lines = payload.read_hex_lines()
-    # send the payload to the device
-    print(f'About to send payload to device: {payload.get_relative_file_path()}')
-    send_to_device(device_path, payload_hex_lines, dry_run)
+    # toggle playback output
+    if toggle_state == TOGGLE_STATE_SPEAKERS:
+        api.playback_toggle_to_headphones()
+    else:
+        api.playback_toggle_to_speakers()
 
 
-def device_set_output(device_path, toggle_state, dry_run):
+def device_set_output(api: G6Api, toggle_state: str):
     """
     Set a specific device output. Either 'Speakers' or 'Headphones'
-    :param device_path: The detected usb device path for the G6.
+    :param api: The G6Api instance to use for communication with the device.
     :param toggle_state: the toggle_state value to set the G6's output to. Should be either 'Speakers' or 'Headphones'.
-    :param dry_run: whether to simulate communication with the device for program testing purposes.
-                    If set to true, no data is sent to the G6!
     """
-    # determine payload to load
+    # toggle playback output to the specified toggle_state
     if toggle_state == TOGGLE_STATE_SPEAKERS:
-        payload = Payload.TOGGLE_OUTPUT_TO_SPEAKERS
+        api.playback_toggle_to_speakers()
     elif toggle_state == TOGGLE_STATE_HEADPHONES:
-        payload = Payload.TOGGLE_OUTPUT_TO_HEADPHONES
+        api.playback_toggle_to_headphones()
     else:
         raise ValueError(
             f'The given toggle_state must either be {TOGGLE_STATE_SPEAKERS} or {TOGGLE_STATE_HEADPHONES}, '
             f'but was {toggle_state}!')
-    # read payload from file
-    payload_hex_lines = payload.read_hex_lines()
-    # send the payload to the device
-    print(f'About to send payload to device: {payload.get_relative_file_path()}')
-    send_to_device(device_path, payload_hex_lines, dry_run)
+
+
+def device_set_audio_effects(api: G6Api, args: argparse.Namespace):
+    """
+    Sends all as CLI args given audio effects to the device.
+    :param api: The G6Api instance to use for communication with the device.
+    :param args: The CLI arguments, recently parsed by argparse in parse_cli_args()
+    """
+    # surround
+    if args.set_surround is not None:
+        api.sbx_toggle(AudioFeature.SURROUND_TOGGLE, to_bool(args.set_surround))
+    if args.set_surround_value is not None:
+        api.sbx_slider(AudioFeature.SURROUND_SLIDER, args.set_surround_value)
+
+    # crystalizer
+    if args.set_crystalizer is not None:
+        api.sbx_toggle(AudioFeature.CRYSTALIZER_TOGGLE, to_bool(args.set_surround))
+    if args.set_crystalizer_value is not None:
+        api.sbx_slider(AudioFeature.CRYSTALIZER_SLIDER, args.set_surround_value)
+
+    # bass
+    if args.set_bass is not None:
+        api.sbx_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.set_bass))
+    if args.set_bass_value is not None:
+        api.sbx_slider(AudioFeature.BASS_SLIDER, args.set_bass_value)
+
+    # smart-volume
+    if args.set_smart_volume is not None:
+        api.sbx_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.set_smart_volume))
+    if args.set_smart_volume_value is not None:
+        api.sbx_slider(AudioFeature.SMART_VOLUME_SLIDER, args.set_smart_volume_value)
+    if args.set_smart_volume_special_value is not None:
+        if args.set_smart_volume_special_value == 'Night':
+            api.sbx_smart_volume_special(SmartVolumeSpecialHex.SMART_VOLUME_NIGHT)
+        elif args.set_smart_volume_special_value == 'Loud':
+            api.sbx_smart_volume_special(SmartVolumeSpecialHex.SMART_VOLUME_LOUD)
+        else:
+            raise ValueError(f'Expected one of the following values for --smart-volume-special-value: '
+                             f'[\'Night\', \'Loud\'], but was \'{args.set_smart_volume_special_value}\'!')
+
+    # dialog-plus
+    if args.set_dialog_plus is not None:
+        api.sbx_toggle(AudioFeature.DIALOG_PLUS_TOGGLE, to_bool(args.set_dialog_plus))
+    if args.set_dialog_plus_value is not None:
+        api.sbx_slider(AudioFeature.DIALOG_PLUS_SLIDER, args.set_dialog_plus_value)
 
 
 def main():
     args = parse_cli_args()
-    device_path = detect_device()
-    audio = Audio()
+    api = G6Api(dry_run=args.dry_run)
 
     # handle device output
     if args.toggle_output:
-        device_toggle_output(device_path, args.dry_run)
+        device_toggle_output(api=api)
     elif args.set_output is not None:
-        device_set_output(device_path, args.set_output, args.dry_run)
+        device_set_output(api=api, toggle_state=args.set_output)
 
     # handle audio effects
-    device_set_audio_effects(device_path, audio, args)
-
+    device_set_audio_effects(api=api, args=args)

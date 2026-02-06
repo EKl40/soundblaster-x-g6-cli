@@ -14,9 +14,9 @@ def sbx_toggle(audio_feature: AudioFeature, activate: bool) -> list[UsbHidDataFr
     :return: The list of UsbHidDataFragment objects to send to the G6, to toggle the specified audio feature on or off.
     """
     return [
-        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature.value,
+        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
                                      value=ACTIVATE_HEX if activate else DEACTIVATE_HEX),
-        UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature.value,
+        UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
                                      value=0x00),
     ]
 
@@ -31,9 +31,9 @@ def sbx_slider(audio_feature: AudioFeature, value: int) -> list[UsbHidDataFragme
     if value < 0 or value > 100:
         raise ValueError(f"Slider value must be between 0 and 100, got {value}")
     return [
-        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature.value,
+        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
                                      value=get_slider_percent_hex(value)),
-        UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature.value,
+        UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
                                      value=0x00),
     ]
 
@@ -45,9 +45,9 @@ def sbx_smart_volume_special(smart_volume_special_hex: SmartVolumeSpecialHex) ->
     :return: The list of UsbHidDataFragment objects to send to the G6, to set the Smart Volume Special mode.
     """
     return [
-        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=AudioFeature.SMART_VOLUME_SPECIAL.value,
+        UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=AudioFeature.SMART_VOLUME_SPECIAL,
                                      value=smart_volume_special_hex.value),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT,
-                                     audio_feature=AudioFeature.SMART_VOLUME_SPECIAL.value,
+                                     audio_feature=AudioFeature.SMART_VOLUME_SPECIAL,
                                      value=0x00)
     ]
