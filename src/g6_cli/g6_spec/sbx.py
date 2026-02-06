@@ -1,8 +1,8 @@
-from g6_cli.g6_spec import UsbHidDataFragment, DataFragmentMode, AudioFeature, get_slider_percent_hex, \
-    SmartVolumeSpecialHex
+from g6_cli.g6_spec import UsbHidDataFragment, DataFragmentMode, AudioFeature, \
+    SmartVolumeSpecialHex, get_slider_percent_bytes
 
-ACTIVATE_HEX = get_slider_percent_hex(100)
-DEACTIVATE_HEX = get_slider_percent_hex(0)
+ACTIVATE_BYTES = get_slider_percent_bytes(100)
+DEACTIVATE_BYTES = get_slider_percent_bytes(0)
 
 
 def sbx_toggle(audio_feature: AudioFeature, activate: bool) -> list[UsbHidDataFragment]:
@@ -15,9 +15,9 @@ def sbx_toggle(audio_feature: AudioFeature, activate: bool) -> list[UsbHidDataFr
     """
     return [
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
-                                     value=ACTIVATE_HEX if activate else DEACTIVATE_HEX),
+                                     value=ACTIVATE_BYTES if activate else DEACTIVATE_BYTES),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
-                                     value=0x00),
+                                     value=bytes.fromhex('00000000')),
     ]
 
 
@@ -32,9 +32,9 @@ def sbx_slider(audio_feature: AudioFeature, value: int) -> list[UsbHidDataFragme
         raise ValueError(f"Slider value must be between 0 and 100, got {value}")
     return [
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
-                                     value=get_slider_percent_hex(value)),
+                                     value=get_slider_percent_bytes(value)),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
-                                     value=0x00),
+                                     value=bytes.fromhex('00000000')),
     ]
 
 
@@ -49,5 +49,5 @@ def sbx_smart_volume_special(smart_volume_special_hex: SmartVolumeSpecialHex) ->
                                      value=smart_volume_special_hex.value),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT,
                                      audio_feature=AudioFeature.SMART_VOLUME_SPECIAL,
-                                     value=0x00)
+                                     value=bytes.fromhex('00000000'))
     ]

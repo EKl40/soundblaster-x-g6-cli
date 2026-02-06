@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from g6_cli.g6_spec import to_hex_str, UsbHidDataFragment
+from g6_cli.g6_spec import UsbHidDataFragment, EMPTY_ADDITIONAL_PAYLOAD
 
-_LIGHTING_DISABLE_MODE = 0x3A02
-_LIGHTING_DISABLE_INTERMEDIATE = 0x0600
+_LIGHTING_DISABLE_MODE = bytes.fromhex('3A02')
+_LIGHTING_DISABLE_INTERMEDIATE = bytes.fromhex('0600')
 
-_LIGHTING_ENABLE_PRE_1_MODE = 0x3A02
-_LIGHTING_ENABLE_PRE_1_INTERMEDIATE = 0x0601
+_LIGHTING_ENABLE_PRE_1_MODE = bytes.fromhex('3A02')
+_LIGHTING_ENABLE_PRE_1_INTERMEDIATE = bytes.fromhex('0601')
 
-_LIGHTING_ENABLE_PRE_2_MODE = 0x3A06
-_LIGHTING_ENABLE_PRE_2_INTERMEDIATE = 0x0400
+_LIGHTING_ENABLE_PRE_2_MODE = bytes.fromhex('3A06')
+_LIGHTING_ENABLE_PRE_2_INTERMEDIATE = bytes.fromhex('0400')
 
-_LIGHTING_ENABLE_RGB_MODE = 0x3A09
-_LIGHTING_ENABLE_RGB_INTERMEDIATE = 0x0A00
-_LIGHTING_ENABLE_RGB_AUDIO_FEATURE = 0x03
+_LIGHTING_ENABLE_RGB_MODE = bytes.fromhex('3A09')
+_LIGHTING_ENABLE_RGB_INTERMEDIATE = bytes.fromhex('0A00')
+_LIGHTING_ENABLE_RGB_AUDIO_FEATURE = bytes.fromhex('03')
 
 
 def lighting_disable() -> list[UsbHidDataFragment]:
@@ -25,9 +25,9 @@ def lighting_disable() -> list[UsbHidDataFragment]:
         UsbHidDataFragment(
             mode=_LIGHTING_DISABLE_MODE,
             intermediate=_LIGHTING_DISABLE_INTERMEDIATE,
-            audio_feature=0x00,
-            value=0x00000000,
-            additional_payload=0x00,
+            audio_feature=bytes.fromhex('00'),
+            value=bytes.fromhex('00000000'),
+            additional_payload=EMPTY_ADDITIONAL_PAYLOAD,
         )
     ]
 
@@ -53,9 +53,9 @@ def lighting_enable_set_rgb(red: int, green: int, blue: int) -> list[UsbHidDataF
             UsbHidDataFragment(
                 mode=_LIGHTING_ENABLE_PRE_1_MODE,
                 intermediate=_LIGHTING_ENABLE_PRE_1_INTERMEDIATE,
-                audio_feature=0x00,
-                value=0x00000000,
-                additional_payload=0x00,
+                audio_feature=bytes.fromhex('00'),
+                value=bytes.fromhex('00000000'),
+                additional_payload=EMPTY_ADDITIONAL_PAYLOAD
             )
         )
         usb_hid_fragment_list.append(
@@ -63,8 +63,8 @@ def lighting_enable_set_rgb(red: int, green: int, blue: int) -> list[UsbHidDataF
                 mode=_LIGHTING_ENABLE_PRE_2_MODE,
                 intermediate=_LIGHTING_ENABLE_PRE_2_INTERMEDIATE,
                 audio_feature=_LIGHTING_ENABLE_RGB_AUDIO_FEATURE,
-                value=to_hex_str(0x01000100),
-                additional_payload=0x00
+                value=bytes.fromhex('01000100'),
+                additional_payload=EMPTY_ADDITIONAL_PAYLOAD
             )
         )
         usb_hid_fragment_list.append(
@@ -72,8 +72,8 @@ def lighting_enable_set_rgb(red: int, green: int, blue: int) -> list[UsbHidDataF
                 mode=_LIGHTING_ENABLE_RGB_MODE,
                 intermediate=_LIGHTING_ENABLE_RGB_INTERMEDIATE,
                 audio_feature=_LIGHTING_ENABLE_RGB_AUDIO_FEATURE,
-                value=to_hex_str(0x0101ff) + to_hex_str(blue),
-                additional_payload=to_hex_str(green) + to_hex_str(red),
+                value=bytes.fromhex('0101ff' + format(blue, '02x')),
+                additional_payload=bytes.fromhex(format(green, '02x') + format(red, '02x') + ''.zfill(104)),
             )
         )
 

@@ -1,10 +1,10 @@
-from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_playback_volume_percent_hex, PlaybackFilter
+from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_playback_volume_percent_bytes, PlaybackFilter
 
-PLAYBACK_B_REQUEST = 0x01
-CHANNEL_1 = 0x0102
-CHANNEL_2 = 0x0202
-DIRECT_MODE = 0x0005
-SPDIF_OUT_DIRECT_MODE = 0x000d
+PLAYBACK_B_REQUEST = bytes.fromhex('01')
+CHANNEL_1 = bytes.fromhex('0201')
+CHANNEL_2 = bytes.fromhex('0202')
+DIRECT_MODE = bytes.fromhex('0005')
+SPDIF_OUT_DIRECT_MODE = bytes.fromhex('000d')
 
 
 def playback_mute(mute: bool) -> list[UsbAudioData]:
@@ -13,8 +13,9 @@ def playback_mute(mute: bool) -> list[UsbAudioData]:
     :param: mute: True to mute, False to activate
     :return: The list of UsbAudioData objects to send to the G6, to mute or unmute playback.
     """
-    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=0x0001, w_index=0x0001, w_length=0x0001,
-                         data_fragment=0x01 if mute else 0x00)]
+    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=bytes.fromhex('0001'), w_index=bytes.fromhex('0001'),
+                         w_length=bytes.fromhex('0100'),
+                         data_fragment=bytes.fromhex('01' if mute else '00'))]
 
 
 def toggle_to_speakers() -> list[UsbHidDataFragment]:
@@ -23,34 +24,36 @@ def toggle_to_speakers() -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to toggle playback to speakers.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=0x2c05, intermediate=0x0002, audio_feature=0x00, value=0x0000),
-        UsbHidDataFragment.empty_additional_payload(mode=0x2c01, intermediate=0x0100, audio_feature=0x00, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0A, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0A, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0B, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0B, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0C, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0C, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0D, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0D, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0E, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0E, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0F, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0F, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x10, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x10, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x11, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x11, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x12, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x12, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x13, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x13, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x14, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x14, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x09, value=0x0000),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c05'), intermediate=bytes.fromhex('0002'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c01'), intermediate=bytes.fromhex('0100'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0C'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0C'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0D'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0D'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0E'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0E'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0F'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0F'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('10'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('10'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('11'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('11'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('12'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('12'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('13'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('13'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('14'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('14'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
     ]
 
 
@@ -60,36 +63,38 @@ def toggle_to_headphones() -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to toggle playback to headphones.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=0x2c05, intermediate=0x0004, audio_feature=0x00, value=0x0000),
-        UsbHidDataFragment.empty_additional_payload(mode=0x2c01, intermediate=0x0100, audio_feature=0x00, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0A, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0A, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0B, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0B, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0C, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0C, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0D, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0D, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0E, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0E, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x0F, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x0F, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x10, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x10, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x11, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x11, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x12, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x12, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x13, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x13, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x14, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x14, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x06, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x06, value=0x0000),
-        UsbHidDataFragment.being_data(audio_feature=0x09, value=0x0000),
-        UsbHidDataFragment.being_commit(audio_feature=0x09, value=0x0000),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c05'), intermediate=bytes.fromhex('0004'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c01'), intermediate=bytes.fromhex('0100'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0C'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0C'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0D'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0D'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0E'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0E'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0F'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0F'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('10'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('10'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('11'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('11'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('12'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('12'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('13'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('13'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('14'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('14'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('06'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('06'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('09'), value=bytes.fromhex('0000 0000')),
     ]
 
 
@@ -98,8 +103,9 @@ def speakers_to_stereo() -> list[UsbAudioData]:
     Set speakers to stereo output.
     :return: The list of UsbAudioData objects to send to the G6, to set speakers to stereo output.
     """
-    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=0x0001, w_length=0x0002,
-                         data_fragment=0x00f4)]
+    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
+                         w_length=bytes.fromhex('0200'),
+                         data_fragment=bytes.fromhex('00f4'))]
 
 
 def speakers_to_5_1() -> list[UsbAudioData]:
@@ -128,10 +134,12 @@ def headphones_to_stereo() -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set headphones to stereo output.
     """
     return [
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=0x0001, w_length=0x0002,
-                     data_fragment=0x00f4),
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=0x0001, w_length=0x0002,
-                     data_fragment=0x00f4)
+        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
+                     w_length=bytes.fromhex('0200'),
+                     data_fragment=bytes.fromhex('00f4')),
+        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=bytes.fromhex('0001'),
+                     w_length=bytes.fromhex('0200'),
+                     data_fragment=bytes.fromhex('00f4'))
     ]
 
 
@@ -165,12 +173,14 @@ def playback_volume(volume_percent: int) -> list[UsbAudioData]:
         raise ValueError(f"Volume percentage must be between 0 and 100, got {volume_percent}")
     if volume_percent % 10 != 0:
         raise ValueError(f"Volume percentage must be a multiple of 10, got {volume_percent}")
-    volume_percent_hex = get_playback_volume_percent_hex(volume_percent)
+    volume_percent_bytes = get_playback_volume_percent_bytes(volume_percent)
     return [
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=0x0001, w_length=0x0002,
-                     data_fragment=volume_percent_hex),
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=0x0001, w_length=0x0002,
-                     data_fragment=volume_percent_hex)
+        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
+                     w_length=bytes.fromhex('0200'),
+                     data_fragment=volume_percent_bytes),
+        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=bytes.fromhex('0001'),
+                     w_length=bytes.fromhex('0200'),
+                     data_fragment=volume_percent_bytes)
     ]
 
 
@@ -181,9 +191,11 @@ def enable_direct_mode(enable: bool) -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to enable or disable direct mode.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=0x3903, intermediate=DIRECT_MODE,
-                                                    audio_feature=0x01 if enable else 0x00, value=0x00),
-        UsbHidDataFragment.empty_additional_payload(mode=0x3901, intermediate=0x0100, audio_feature=0x00, value=0x00)
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'), intermediate=DIRECT_MODE,
+                                                    audio_feature=bytes.fromhex('01' if enable else '00'),
+                                                    value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3901'), intermediate=bytes.fromhex('0100'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000'))
     ]
 
 
@@ -194,10 +206,11 @@ def enable_spdif_out_direct_mode(enable: bool) -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to enable or disable SPDIF-Out direct mode.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=0x3903, intermediate=SPDIF_OUT_DIRECT_MODE,
-                                                    audio_feature=0x01 if enable else 0x00,
-                                                    value=0x00),
-        UsbHidDataFragment.empty_additional_payload(mode=0x3901, intermediate=0x0100, audio_feature=0x00, value=0x00)
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'), intermediate=SPDIF_OUT_DIRECT_MODE,
+                                                    audio_feature=bytes.fromhex('01' if enable else '00'),
+                                                    value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3901'), intermediate=bytes.fromhex('0100'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000'))
     ]
 
 
@@ -208,7 +221,9 @@ def playback_filter(playback_filter_enum: PlaybackFilter) -> list[UsbHidDataFrag
     :return: The list of UsbHidDataFragment objects to send to the G6, to set the playback filter.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=0x6c03, intermediate=playback_filter_enum.value, audio_feature=0x00,
-                                                    value=0x00),
-        UsbHidDataFragment.empty_additional_payload(mode=0x6c01, intermediate=0x0100, audio_feature=0x00, value=0x00)
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('6c03'), intermediate=playback_filter_enum.value,
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('6c01'), intermediate=bytes.fromhex('0100'),
+                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000'))
     ]

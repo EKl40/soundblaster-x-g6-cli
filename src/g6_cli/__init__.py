@@ -3,7 +3,7 @@ import os.path
 import tempfile
 
 from g6_cli.g6_api import G6Api
-from g6_cli.g6_core import send_to_device, detect_device
+from g6_cli.g6_core import detect_device
 from g6_cli.g6_spec import AudioFeature, SmartVolumeSpecialHex
 from g6_cli.g6_util import to_bool
 

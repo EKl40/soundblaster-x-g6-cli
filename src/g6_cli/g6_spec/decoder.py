@@ -2,13 +2,13 @@ from enum import Enum
 
 from g6_cli.g6_spec import UsbHidDataFragment, DataFragmentMode, DataFragmentStatic
 
-DECODER_AUDIO_FEATURE = 0x02
+DECODER_AUDIO_FEATURE = bytes.fromhex('02')
 
 
 class DecoderMode(Enum):
-    NORMAL = 0x00000040
-    FULL = 0x0000803F
-    NIGHT = 0x00004040
+    NORMAL = bytes.fromhex('00000040')
+    FULL = bytes.fromhex('0000803F')
+    NIGHT = bytes.fromhex('00004040')
 
 
 def decoder_mode(decoder_mode_enum: DecoderMode) -> list[UsbHidDataFragment]:
@@ -28,6 +28,6 @@ def decoder_mode(decoder_mode_enum: DecoderMode) -> list[UsbHidDataFragment]:
             mode=DataFragmentMode.COMMIT.value,
             intermediate=DataFragmentStatic.DECODER_INTERMEDIATE.value,
             audio_feature=DECODER_AUDIO_FEATURE,
-            value=0x00,
+            value=bytes.fromhex('00000000'),
         ),
     ]

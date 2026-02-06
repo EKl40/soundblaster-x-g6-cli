@@ -1,23 +1,23 @@
 from g6_cli.g6_spec import (
     UsbAudioData,
-    get_mic_monitoring_volume_percent_hex,
-    get_mic_recording_volume_percent_hex,
+    get_mic_monitoring_volume_percent_bytes,
+    get_mic_recording_volume_percent_bytes,
 )
 
-MIXER_B_REQUEST = 0x01
-CHANNEL_1 = 0x0102
-CHANNEL_2 = 0x0202
+MIXER_B_REQUEST = bytes.fromhex('01')
+CHANNEL_1 = bytes.fromhex('0201')
+CHANNEL_2 = bytes.fromhex('0202')
 
-PLAYBACK = 0x0001
+PLAYBACK = bytes.fromhex('0001')
 
-MONITORING_LINE_IN = 0x0009
-MONITORING_EXTERNAL_MIC = 0x000A
-MONITORING_SPDIF_IN = 0x000C
+MONITORING_LINE_IN = bytes.fromhex('0009')
+MONITORING_EXTERNAL_MIC = bytes.fromhex('000A')
+MONITORING_SPDIF_IN = bytes.fromhex('000C')
 
-RECORDING_LINE_IN = 0x0003
-RECORDING_EXTERNAL_MIC = 0x0004
-RECORDING_SPDIF_IN = 0x0005
-RECORDING_WHAT_U_HEAR = 0x0006
+RECORDING_LINE_IN = bytes.fromhex('0003')
+RECORDING_EXTERNAL_MIC = bytes.fromhex('0004')
+RECORDING_SPDIF_IN = bytes.fromhex('0005')
+RECORDING_WHAT_U_HEAR = bytes.fromhex('0006')
 
 
 def _validate_volume_percent(volume_percent: int) -> None:
@@ -27,33 +27,33 @@ def _validate_volume_percent(volume_percent: int) -> None:
         raise ValueError(f"Volume percentage must be a multiple of 10, got {volume_percent}")
 
 
-def _unit_mute(w_index: int, mute: bool) -> list[UsbAudioData]:
+def _unit_mute(w_index: bytes, mute: bool) -> list[UsbAudioData]:
     return [
         UsbAudioData(
             b_request=MIXER_B_REQUEST,
-            w_value=0x0001,
+            w_value=bytes.fromhex('0001'),
             w_index=w_index,
-            w_length=0x0100,
-            data_fragment=0x01 if mute else 0x00,
+            w_length=bytes.fromhex('0100'),
+            data_fragment=bytes.fromhex('01' if mute else '00'),
         )
     ]
 
 
-def _unit_volume(w_index: int, volume_hex: int) -> list[UsbAudioData]:
+def _unit_volume(w_index: bytes, volume_bytes: bytes) -> list[UsbAudioData]:
     return [
         UsbAudioData(
             b_request=MIXER_B_REQUEST,
             w_value=CHANNEL_1,
             w_index=w_index,
-            w_length=0x0200,
-            data_fragment=volume_hex,
+            w_length=bytes.fromhex('0200'),
+            data_fragment=volume_bytes,
         ),
         UsbAudioData(
             b_request=MIXER_B_REQUEST,
             w_value=CHANNEL_2,
             w_index=w_index,
-            w_length=0x0200,
-            data_fragment=volume_hex,
+            w_length=bytes.fromhex('0200'),
+            data_fragment=volume_bytes,
         ),
     ]
 
@@ -83,8 +83,8 @@ def monitoring_line_in_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the monitoring volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_monitoring_volume_percent_hex(volume_percent)
-    return _unit_volume(MONITORING_LINE_IN, volume_hex)
+    volume_bytes = get_mic_monitoring_volume_percent_bytes(volume_percent)
+    return _unit_volume(MONITORING_LINE_IN, volume_bytes)
 
 
 def monitoring_external_mic_mute(mute: bool) -> list[UsbAudioData]:
@@ -103,8 +103,8 @@ def monitoring_external_mic_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the monitoring volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_monitoring_volume_percent_hex(volume_percent)
-    return _unit_volume(MONITORING_EXTERNAL_MIC, volume_hex)
+    volume_bytes = get_mic_monitoring_volume_percent_bytes(volume_percent)
+    return _unit_volume(MONITORING_EXTERNAL_MIC, volume_bytes)
 
 
 def monitoring_spdif_in_mute(mute: bool) -> list[UsbAudioData]:
@@ -123,8 +123,8 @@ def monitoring_spdif_in_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the monitoring volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_monitoring_volume_percent_hex(volume_percent)
-    return _unit_volume(MONITORING_SPDIF_IN, volume_hex)
+    volume_bytes = get_mic_monitoring_volume_percent_bytes(volume_percent)
+    return _unit_volume(MONITORING_SPDIF_IN, volume_bytes)
 
 
 def recording_line_in_mute(mute: bool) -> list[UsbAudioData]:
@@ -143,8 +143,8 @@ def recording_line_in_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the recording volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_recording_volume_percent_hex(volume_percent)
-    return _unit_volume(RECORDING_LINE_IN, volume_hex)
+    volume_bytes = get_mic_recording_volume_percent_bytes(volume_percent)
+    return _unit_volume(RECORDING_LINE_IN, volume_bytes)
 
 
 def recording_external_mic_mute(mute: bool) -> list[UsbAudioData]:
@@ -163,8 +163,8 @@ def recording_external_mic_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the recording volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_recording_volume_percent_hex(volume_percent)
-    return _unit_volume(RECORDING_EXTERNAL_MIC, volume_hex)
+    volume_bytes = get_mic_recording_volume_percent_bytes(volume_percent)
+    return _unit_volume(RECORDING_EXTERNAL_MIC, volume_bytes)
 
 
 def recording_spdif_in_mute(mute: bool) -> list[UsbAudioData]:
@@ -183,8 +183,8 @@ def recording_spdif_in_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the recording volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_recording_volume_percent_hex(volume_percent)
-    return _unit_volume(RECORDING_SPDIF_IN, volume_hex)
+    volume_bytes = get_mic_recording_volume_percent_bytes(volume_percent)
+    return _unit_volume(RECORDING_SPDIF_IN, volume_bytes)
 
 
 def recording_what_u_hear_mute(mute: bool) -> list[UsbAudioData]:
@@ -203,5 +203,5 @@ def recording_what_u_hear_volume(volume_percent: int) -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set the recording volume.
     """
     _validate_volume_percent(volume_percent)
-    volume_hex = get_mic_recording_volume_percent_hex(volume_percent)
-    return _unit_volume(RECORDING_WHAT_U_HEAR, volume_hex)
+    volume_bytes = get_mic_recording_volume_percent_bytes(volume_percent)
+    return _unit_volume(RECORDING_WHAT_U_HEAR, volume_bytes)

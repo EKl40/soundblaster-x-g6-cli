@@ -1,4 +1,3 @@
-# tests/test_g6_api_init.py
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -14,11 +13,8 @@ def api(monkeypatch: pytest.MonkeyPatch) -> g6_api.G6Api:
     """
     Always construct with dry_run=True (per requirement) and never touch real hardware.
     """
-    monkeypatch.setattr(g6_api, "detect_device",
-                        MagicMock(return_value=G6Device(device_path_audio_interface="/dev/fake-g6/audio",
-                                                        device_path_hid_interface="/dev/fake-g6/hid")))
-    monkeypatch.setattr(g6_api, "send_audio_data_to_device", MagicMock())
-    monkeypatch.setattr(g6_api, "send_hid_data_to_device", MagicMock())
+    # mock detect_device() method on g6_api module level
+    monkeypatch.setattr(g6_api, "detect_device", MagicMock(return_value=G6Device))
     return g6_api.G6Api(dry_run=True)
 
 
@@ -158,36 +154,35 @@ HID_CASES = [
 @pytest.mark.parametrize("method_name,spec_name,args,kwargs", AUDIO_CASES)
 def test_g6api_audio_methods_call_audio_sender(
         api: g6_api.G6Api,
+
         monkeypatch: pytest.MonkeyPatch,
         method_name: str,
         spec_name: str,
         args: tuple,
         kwargs: dict,
 ) -> None:
-    # Arrange
+    # Create a mock for hex data ("*_spec()" method in g6_api)
     expected_audio_data_list = [b"audio-payload"]
     spec_mock = MagicMock(return_value=expected_audio_data_list)
     monkeypatch.setattr(g6_api, spec_name, spec_mock)
 
-    # noinspection PyTypeChecker
-    send_audio_mock: MagicMock = g6_api.send_audio_data_to_device  # patched in fixture
-    send_audio_mock.reset_mock()  # reset function call counters
+    # Patch the instance method: api.__device.send_hid_data_to_device(...)
+    device = getattr(api, "_G6Api__device")
+    send_audio_mock = MagicMock()
+    monkeypatch.setattr(device, "send_audio_data_to_device", send_audio_mock)
 
-    # Act
+    # Execute method on g6_api instance
     method = getattr(api, method_name)
     method(*args, **kwargs)
 
-    # Assert: spec called correctly
+    # Assert: correct spec method called
     spec_mock.assert_called_once_with(*args, **kwargs)
 
-    # Assert: sender called correctly (and with dry_run=True)
-    send_audio_mock.assert_called_once()
-    call_kwargs = send_audio_mock.call_args.kwargs
-    assert type(call_kwargs["device"]) is G6Device
-    assert call_kwargs["device"].get_device_path_audio_interface() == "/dev/fake-g6/audio"
-    assert call_kwargs["device"].get_device_path_hid_interface() == "/dev/fake-g6/hid"
-    assert call_kwargs["audio_data_list"] == expected_audio_data_list
-    assert call_kwargs["dry_run"] is True
+    # Assert: send_hid_data_to_device called correctly
+    send_audio_mock.assert_called_once_with(
+        audio_data_list=expected_audio_data_list,
+        dry_run=True,
+    )
 
 
 @pytest.mark.parametrize("method_name,spec_name,args,kwargs", HID_CASES)
@@ -199,38 +194,25 @@ def test_g6api_hid_methods_call_hid_sender(
         args: tuple,
         kwargs: dict,
 ) -> None:
-    # Arrange
+    # Create a mock for hex data ("*_spec()" method in g6_api)
     expected_hid_data_list = [b"hid-payload"]
     spec_mock = MagicMock(return_value=expected_hid_data_list)
     monkeypatch.setattr(g6_api, spec_name, spec_mock)
 
-    # noinspection PyTypeChecker
-    send_hid_mock: MagicMock = g6_api.send_hid_data_to_device  # patched in fixture
-    send_hid_mock.reset_mock()  # reset function call counters
+    # Patch the instance method: api.__device.send_hid_data_to_device(...)
+    device = getattr(api, "_G6Api__device")
+    send_hid_mock = MagicMock()
+    monkeypatch.setattr(device, "send_hid_data_to_device", send_hid_mock)
 
-    # Act
+    # Execute method on g6_api instance
     method = getattr(api, method_name)
     method(*args, **kwargs)
 
-    # Assert: spec called correctly
+    # Assert: correct spec method called
     spec_mock.assert_called_once_with(*args, **kwargs)
 
-    # Assert: sender called correctly (and with dry_run=True)
-    send_hid_mock.assert_called_once()
-    call_kwargs = send_hid_mock.call_args.kwargs
-    assert type(call_kwargs["device"]) is G6Device
-    assert call_kwargs["device"].get_device_path_audio_interface() == "/dev/fake-g6/audio"
-    assert call_kwargs["device"].get_device_path_hid_interface() == "/dev/fake-g6/hid"
-    assert call_kwargs["hid_data_list"] == expected_hid_data_list
-    assert call_kwargs["dry_run"] is True
-
-
-def test_constructor_detects_device_once(monkeypatch: pytest.MonkeyPatch) -> None:
-    detect_mock = MagicMock(return_value="/dev/fake-g6")
-    monkeypatch.setattr(g6_api, "detect_device", detect_mock)
-    monkeypatch.setattr(g6_api, "send_audio_data_to_device", MagicMock())
-    monkeypatch.setattr(g6_api, "send_hid_data_to_device", MagicMock())
-
-    _ = g6_api.G6Api(dry_run=True)
-
-    detect_mock.assert_called_once_with()
+    # Assert: send_hid_data_to_device called correctly
+    send_hid_mock.assert_called_once_with(
+        hid_data_list=expected_hid_data_list,
+        dry_run=True,
+    )
