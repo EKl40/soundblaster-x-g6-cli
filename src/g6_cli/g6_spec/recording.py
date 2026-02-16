@@ -2,15 +2,8 @@ from enum import Enum
 
 from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_mic_recording_volume_percent_bytes, \
     get_mic_monitoring_volume_percent_bytes, get_mic_boost_decibel_bytes, DataFragmentMode, \
-    get_mic_voice_clarity_level_bytes, DataFragmentStatic, get_slider_percent_bytes
-
-RECORDING_B_REQUEST = bytes.fromhex('01')
-CHANNEL_1 = bytes.fromhex('0201')
-CHANNEL_2 = bytes.fromhex('0202')
-
-# Audio (USB Audio class) wIndex targets from the table
-RECORDING_FU_W_INDEX = bytes.fromhex('0004')  # mute + mic recording volume live here
-MIC_MONITORING_W_INDEX = bytes.fromhex('000A')  # mic monitoring level lives here
+    get_mic_voice_clarity_level_bytes, DataFragmentStatic, get_slider_percent_bytes, Channel, B_REQUEST, \
+    RECORDING_EXTERNAL_MIC, MONITORING_EXTERNAL_MIC
 
 
 class MicrophoneEqualizerPreset(Enum):
@@ -57,19 +50,20 @@ def recording_mute(mute: bool) -> list[UsbAudioData]:
     """
     return [
         UsbAudioData(
-            b_request=RECORDING_B_REQUEST,
+            b_request=B_REQUEST,
             w_value=bytes.fromhex('0001'),
-            w_index=RECORDING_FU_W_INDEX,
+            w_index=RECORDING_EXTERNAL_MIC,
             w_length=bytes.fromhex('0100'),
             data_fragment=bytes.fromhex('01' if mute else '00'),
         )
     ]
 
 
-def mic_recording_volume(volume_percent: int) -> list[UsbAudioData]:
+def mic_recording_volume(volume_percent: int, channels: set[Channel]) -> list[UsbAudioData]:
     """
     Set mic recording volume (both channels) to the specified percentage.
     :param volume_percent: The volume percentage for the microphone recording. Supported: 0, 10, 20, ..., 100 (as captured in the table).
+    :param channels: The channels to set the volume for.
     :return: The list of UsbAudioData objects to send to the G6, to set mic recording volume.
     """
     if volume_percent < 0 or volume_percent > 100:
@@ -80,19 +74,12 @@ def mic_recording_volume(volume_percent: int) -> list[UsbAudioData]:
     value = get_mic_recording_volume_percent_bytes(volume_percent)
     return [
         UsbAudioData(
-            b_request=RECORDING_B_REQUEST,
-            w_value=CHANNEL_1,
-            w_index=RECORDING_FU_W_INDEX,
+            b_request=B_REQUEST,
+            w_value=channel.value,
+            w_index=RECORDING_EXTERNAL_MIC,
             w_length=bytes.fromhex('0200'),
             data_fragment=value,
-        ),
-        UsbAudioData(
-            b_request=RECORDING_B_REQUEST,
-            w_value=CHANNEL_2,
-            w_index=RECORDING_FU_W_INDEX,
-            w_length=bytes.fromhex('0200'),
-            data_fragment=value,
-        ),
+        ) for channel in channels
     ]
 
 
@@ -112,14 +99,16 @@ def mic_boost(decibel: int) -> list[UsbHidDataFragment]:
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3C04'), intermediate=bytes.fromhex('0000'),
                                                     audio_feature=bytes.fromhex('02'), value=value),
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3C02'), intermediate=bytes.fromhex('0100'),
-                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
     ]
 
 
-def mic_monitoring(volume_percent: int) -> list[UsbAudioData]:
+def mic_monitoring(volume_percent: int, channels: set[Channel]) -> list[UsbAudioData]:
     """
     Set mic monitoring level (sidetone) for both channels.
     :param volume_percent: The monitoring level to set. Supported: 0, 10, 20, ..., 100 (as captured in the table).
+    :param channels: The channels to set the monitoring level for.
     :return: The list of UsbAudioData objects to send to the G6, to set mic monitoring level.
     """
     if volume_percent < 0 or volume_percent > 100:
@@ -130,19 +119,12 @@ def mic_monitoring(volume_percent: int) -> list[UsbAudioData]:
     value = get_mic_monitoring_volume_percent_bytes(volume_percent)
     return [
         UsbAudioData(
-            b_request=RECORDING_B_REQUEST,
-            w_value=CHANNEL_1,
-            w_index=MIC_MONITORING_W_INDEX,
+            b_request=B_REQUEST,
+            w_value=channel.value,
+            w_index=MONITORING_EXTERNAL_MIC,
             w_length=bytes.fromhex('0200'),
             data_fragment=value,
-        ),
-        UsbAudioData(
-            b_request=RECORDING_B_REQUEST,
-            w_value=CHANNEL_2,
-            w_index=MIC_MONITORING_W_INDEX,
-            w_length=bytes.fromhex('0200'),
-            data_fragment=value,
-        ),
+        ) for channel in channels
     ]
 
 

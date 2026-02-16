@@ -1,10 +1,8 @@
-from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_playback_volume_percent_bytes, PlaybackFilter
+from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_playback_volume_percent_bytes, PlaybackFilter, Channel, \
+    BOTH_CHANNELS, B_REQUEST, PLAYBACK_PLAYBACK
 
-PLAYBACK_B_REQUEST = bytes.fromhex('01')
-CHANNEL_1 = bytes.fromhex('0201')
-CHANNEL_2 = bytes.fromhex('0202')
-DIRECT_MODE = bytes.fromhex('0005')
-SPDIF_OUT_DIRECT_MODE = bytes.fromhex('000d')
+PLAYBACK_INTERMEDIATE_DIRECT_MODE = bytes.fromhex('0005')
+PLAYBACK_INTERMEDIATE_SPDIF_OUT_DIRECT_MODE = bytes.fromhex('000d')
 
 
 def playback_mute(mute: bool) -> list[UsbAudioData]:
@@ -13,7 +11,7 @@ def playback_mute(mute: bool) -> list[UsbAudioData]:
     :param: mute: True to mute, False to activate
     :return: The list of UsbAudioData objects to send to the G6, to mute or unmute playback.
     """
-    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=bytes.fromhex('0001'), w_index=bytes.fromhex('0001'),
+    return [UsbAudioData(b_request=B_REQUEST, w_value=bytes.fromhex('0001'), w_index=PLAYBACK_PLAYBACK,
                          w_length=bytes.fromhex('0100'),
                          data_fragment=bytes.fromhex('01' if mute else '00'))]
 
@@ -25,9 +23,11 @@ def toggle_to_speakers() -> list[UsbHidDataFragment]:
     """
     return [
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c05'), intermediate=bytes.fromhex('0002'),
-                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c01'), intermediate=bytes.fromhex('0100'),
-                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
@@ -64,9 +64,11 @@ def toggle_to_headphones() -> list[UsbHidDataFragment]:
     """
     return [
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c05'), intermediate=bytes.fromhex('0004'),
-                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('2c01'), intermediate=bytes.fromhex('0100'),
-                                                    audio_feature=bytes.fromhex('00'), value=bytes.fromhex('0000 0000')),
+                                                    audio_feature=bytes.fromhex('00'),
+                                                    value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_commit(audio_feature=bytes.fromhex('0A'), value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.being_data(audio_feature=bytes.fromhex('0B'), value=bytes.fromhex('0000 0000')),
@@ -103,9 +105,11 @@ def speakers_to_stereo() -> list[UsbAudioData]:
     Set speakers to stereo output.
     :return: The list of UsbAudioData objects to send to the G6, to set speakers to stereo output.
     """
-    return [UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
-                         w_length=bytes.fromhex('0200'),
-                         data_fragment=bytes.fromhex('00f4'))]
+    return [
+        UsbAudioData(b_request=B_REQUEST, w_value=channel.value, w_index=PLAYBACK_PLAYBACK,
+                     w_length=bytes.fromhex('0200'),
+                     data_fragment=bytes.fromhex('00f4')) for channel in BOTH_CHANNELS
+    ]
 
 
 def speakers_to_5_1() -> list[UsbAudioData]:
@@ -134,12 +138,9 @@ def headphones_to_stereo() -> list[UsbAudioData]:
     :return: The list of UsbAudioData objects to send to the G6, to set headphones to stereo output.
     """
     return [
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
+        UsbAudioData(b_request=B_REQUEST, w_value=channel.value, w_index=PLAYBACK_PLAYBACK,
                      w_length=bytes.fromhex('0200'),
-                     data_fragment=bytes.fromhex('00f4')),
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=bytes.fromhex('0001'),
-                     w_length=bytes.fromhex('0200'),
-                     data_fragment=bytes.fromhex('00f4'))
+                     data_fragment=bytes.fromhex('00f4')) for channel in BOTH_CHANNELS
     ]
 
 
@@ -163,10 +164,11 @@ def headphones_to_7_1() -> list[UsbAudioData]:
     return headphones_to_stereo()
 
 
-def playback_volume(volume_percent: int) -> list[UsbAudioData]:
+def playback_volume(volume_percent: int, channels: set[Channel]) -> list[UsbAudioData]:
     """
     Set playback volume to the specified percentage.
     :param volume_percent: The volume percentage to set (10, 20, 30, ..., 100).
+    :param channels: The channels to set the volume for.
     :return: The list of UsbAudioData objects to send to the G6, to set playback volume.
     """
     if volume_percent < 0 or volume_percent > 100:
@@ -175,12 +177,9 @@ def playback_volume(volume_percent: int) -> list[UsbAudioData]:
         raise ValueError(f"Volume percentage must be a multiple of 10, got {volume_percent}")
     volume_percent_bytes = get_playback_volume_percent_bytes(volume_percent)
     return [
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_1, w_index=bytes.fromhex('0001'),
+        UsbAudioData(b_request=B_REQUEST, w_value=channel.value, w_index=PLAYBACK_PLAYBACK,
                      w_length=bytes.fromhex('0200'),
-                     data_fragment=volume_percent_bytes),
-        UsbAudioData(b_request=PLAYBACK_B_REQUEST, w_value=CHANNEL_2, w_index=bytes.fromhex('0001'),
-                     w_length=bytes.fromhex('0200'),
-                     data_fragment=volume_percent_bytes)
+                     data_fragment=volume_percent_bytes) for channel in channels
     ]
 
 
@@ -191,7 +190,8 @@ def enable_direct_mode(enable: bool) -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to enable or disable direct mode.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'), intermediate=DIRECT_MODE,
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'),
+                                                    intermediate=PLAYBACK_INTERMEDIATE_DIRECT_MODE,
                                                     audio_feature=bytes.fromhex('01' if enable else '00'),
                                                     value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3901'), intermediate=bytes.fromhex('0100'),
@@ -206,7 +206,8 @@ def enable_spdif_out_direct_mode(enable: bool) -> list[UsbHidDataFragment]:
     :return: The list of UsbHidDataFragment objects to send to the G6, to enable or disable SPDIF-Out direct mode.
     """
     return [
-        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'), intermediate=SPDIF_OUT_DIRECT_MODE,
+        UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3903'),
+                                                    intermediate=PLAYBACK_INTERMEDIATE_SPDIF_OUT_DIRECT_MODE,
                                                     audio_feature=bytes.fromhex('01' if enable else '00'),
                                                     value=bytes.fromhex('0000 0000')),
         UsbHidDataFragment.empty_additional_payload(mode=bytes.fromhex('3901'), intermediate=bytes.fromhex('0100'),

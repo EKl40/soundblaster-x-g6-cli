@@ -5,7 +5,7 @@ import subprocess
 from g6_cli.g6_core import (
     detect_device
 )
-from g6_cli.g6_spec import AudioFeature, PlaybackFilter, SmartVolumeSpecialHex
+from g6_cli.g6_spec import AudioFeature, PlaybackFilter, SmartVolumeSpecialHex, Channel, BOTH_CHANNELS
 from g6_cli.g6_spec.decoder import DecoderMode
 from g6_cli.g6_spec.decoder import decoder_mode as decoder_mode_spec
 from g6_cli.g6_spec.lighting import (
@@ -97,7 +97,7 @@ class G6Api:
                     raise RuntimeError("sudo not found; run as root or install/configure sudo.")
                 alsa_cmd = [sudo_path, "--non-interactive", *alsa_cmd]
 
-            subprocess.run(alsa_cmd, check=False) # check=False: some module may fail. Continue anyway ...
+            subprocess.run(alsa_cmd, check=False)  # check=False: some module may fail. Continue anyway ...
 
         def reload_pipewire():
             systemctl = shutil.which("systemctl")
@@ -203,8 +203,8 @@ class G6Api:
     def playback_headphones_to_7_1_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def playback_volume(self, volume_percent: int) -> None:
-        audio_data_list = playback_volume_spec(volume_percent)
+    def playback_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = playback_volume_spec(volume_percent=volume_percent, channels=channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -290,8 +290,8 @@ class G6Api:
     def mixer_monitoring_line_in_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_monitoring_line_in_volume(self, volume_percent: int) -> None:
-        audio_data_list = monitoring_line_in_volume_spec(volume_percent)
+    def mixer_monitoring_line_in_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = monitoring_line_in_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -308,8 +308,8 @@ class G6Api:
     def mixer_monitoring_external_mic_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_monitoring_external_mic_volume(self, volume_percent: int) -> None:
-        audio_data_list = monitoring_external_mic_volume_spec(volume_percent)
+    def mixer_monitoring_external_mic_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = monitoring_external_mic_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -326,8 +326,8 @@ class G6Api:
     def mixer_monitoring_spdif_in_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_monitoring_spdif_in_volume(self, volume_percent: int) -> None:
-        audio_data_list = monitoring_spdif_in_volume_spec(volume_percent)
+    def mixer_monitoring_spdif_in_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = monitoring_spdif_in_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -344,8 +344,8 @@ class G6Api:
     def mixer_recording_line_in_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_recording_line_in_volume(self, volume_percent: int) -> None:
-        audio_data_list = recording_line_in_volume_spec(volume_percent)
+    def mixer_recording_line_in_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = recording_line_in_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -362,8 +362,8 @@ class G6Api:
     def mixer_recording_external_mic_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_recording_external_mic_volume(self, volume_percent: int) -> None:
-        audio_data_list = recording_external_mic_volume_spec(volume_percent)
+    def mixer_recording_external_mic_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = recording_external_mic_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -380,8 +380,8 @@ class G6Api:
     def mixer_recording_spdif_in_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_recording_spdif_in_volume(self, volume_percent: int) -> None:
-        audio_data_list = recording_spdif_in_volume_spec(volume_percent)
+    def mixer_recording_spdif_in_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = recording_spdif_in_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -398,8 +398,8 @@ class G6Api:
     def mixer_recording_what_u_hear_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def mixer_recording_what_u_hear_volume(self, volume_percent: int) -> None:
-        audio_data_list = recording_what_u_hear_volume_spec(volume_percent)
+    def mixer_recording_what_u_hear_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = recording_what_u_hear_volume_spec(volume_percent, channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -418,8 +418,8 @@ class G6Api:
     def recording_mute_available(self) -> bool:
         return self.__device.is_audio_interface_available()
 
-    def recording_mic_recording_volume(self, volume_percent: int) -> None:
-        audio_data_list = mic_recording_volume_spec(volume_percent)
+    def recording_mic_recording_volume(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = mic_recording_volume_spec(volume_percent=volume_percent, channels=channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )
@@ -436,8 +436,8 @@ class G6Api:
     def recording_mic_boost_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_mic_monitoring(self, volume_percent: int) -> None:
-        audio_data_list = mic_monitoring_spec(volume_percent)
+    def recording_mic_monitoring(self, volume_percent: int, channels: set[Channel] = BOTH_CHANNELS) -> None:
+        audio_data_list = mic_monitoring_spec(volume_percent=volume_percent, channels=channels)
         self.__device.send_audio_data_to_device(audio_data_list=audio_data_list,
                                                 dry_run=self.__dry_run,
                                                 )

@@ -17,7 +17,7 @@ def sbx_toggle(audio_feature: AudioFeature, activate: bool) -> list[UsbHidDataFr
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
                                      value=ACTIVATE_BYTES if activate else DEACTIVATE_BYTES),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
-                                     value=bytes.fromhex('00000000')),
+                                     value=bytes.fromhex('0000 0000')),
     ]
 
 
@@ -34,7 +34,7 @@ def sbx_slider(audio_feature: AudioFeature, value: int) -> list[UsbHidDataFragme
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.DATA, audio_feature=audio_feature,
                                      value=get_slider_percent_bytes(value)),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT, audio_feature=audio_feature,
-                                     value=bytes.fromhex('00000000')),
+                                     value=bytes.fromhex('0000 0000')),
     ]
 
 
@@ -49,5 +49,5 @@ def sbx_smart_volume_special(smart_volume_special_hex: SmartVolumeSpecialHex) ->
                                      value=smart_volume_special_hex.value),
         UsbHidDataFragment.from_enum(mode=DataFragmentMode.COMMIT,
                                      audio_feature=AudioFeature.SMART_VOLUME_SPECIAL,
-                                     value=bytes.fromhex('00000000'))
+                                     value=bytes.fromhex('0000 0000'))
     ]

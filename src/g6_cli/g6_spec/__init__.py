@@ -39,6 +39,11 @@ class PlaybackFilter(Enum):
     SLOW_ROLL_OFF_LINEAR_PHASE = bytes.fromhex('0005')
 
 
+class Channel(Enum):
+    CHANNEL_1 = bytes.fromhex('0201')  # LEFT
+    CHANNEL_2 = bytes.fromhex('0202')  # RIGHT
+
+
 class UsbAudioData:
     def __init__(self, b_request: bytes, w_value: bytes, w_index: bytes, w_length: bytes, data_fragment: bytes):
         # bmRequestType
@@ -121,6 +126,31 @@ class UsbHidDataFragment:
         return (f'{self.__static_prefix.hex()}{self.__mode.hex()}{self.__static_intermediate.hex()}'
                 f'{self.__audio_feature.hex()}{self.__value.hex()}{self.__additional_payload.hex()}')
 
+
+# --- Global values ---
+
+B_REQUEST = bytes.fromhex('01')
+
+BOTH_CHANNELS = {Channel.CHANNEL_1, Channel.CHANNEL_2}
+
+# --- Playback ---
+
+PLAYBACK_PLAYBACK = bytes.fromhex('0001')
+
+# --- Mixer ---
+
+MONITORING_LINE_IN = bytes.fromhex('0009')
+MONITORING_EXTERNAL_MIC: bytes = bytes.fromhex('000A')
+MONITORING_SPDIF_IN = bytes.fromhex('000C')
+
+# --- Recording ---
+
+RECORDING_LINE_IN = bytes.fromhex('0003')
+RECORDING_EXTERNAL_MIC = bytes.fromhex('0004')
+RECORDING_SPDIF_IN = bytes.fromhex('0005')
+RECORDING_WHAT_U_HEAR = bytes.fromhex('0006')
+
+# -- Volumes and Decibels --
 
 __slider_percent_to_bytes_dict: dict[int, bytes] = {
     0: bytes.fromhex('0000 0000'),

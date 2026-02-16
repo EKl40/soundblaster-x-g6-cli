@@ -6,9 +6,9 @@ DECODER_AUDIO_FEATURE = bytes.fromhex('02')
 
 
 class DecoderMode(Enum):
-    NORMAL = bytes.fromhex('00000040')
-    FULL = bytes.fromhex('0000803F')
-    NIGHT = bytes.fromhex('00004040')
+    NORMAL = bytes.fromhex('0000 0040')
+    FULL = bytes.fromhex('0000 803F')
+    NIGHT = bytes.fromhex('0000 4040')
 
 
 def decoder_mode(decoder_mode_enum: DecoderMode) -> list[UsbHidDataFragment]:
