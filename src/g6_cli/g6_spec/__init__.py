@@ -33,8 +33,8 @@ class AudioFeature(Enum):
 
 
 class PlaybackFilter(Enum):
-    FAST_ROLL_OFF_MINIUM_PHASE = bytes.fromhex('0001')
-    SLOW_ROLL_OFF_MINIUM_PHASE = bytes.fromhex('0002')
+    FAST_ROLL_OFF_MINIMUM_PHASE = bytes.fromhex('0001')
+    SLOW_ROLL_OFF_MINIMUM_PHASE = bytes.fromhex('0002')
     FAST_ROLL_OFF_LINEAR_PHASE = bytes.fromhex('0004')
     SLOW_ROLL_OFF_LINEAR_PHASE = bytes.fromhex('0005')
 

@@ -33,8 +33,8 @@ class G6Device:
             self.__usb_device = usb_device
             self.__device_path = device_path
             self.__b_configuration_value = b_configuration_value
-            self.__available = True
-            self.__availability_last_checked = datetime.datetime.now().timestamp()
+            self.__available = False
+            self.__availability_last_checked = None
             self.__kernel_driver_attached = True
             self.__interface_claimed = False
 
@@ -47,7 +47,8 @@ class G6Device:
         def is_available(self) -> bool:
             try:
                 # check availability in intervals
-                if self.__availability_last_checked + G6Device.AVAILABILITY_CHECK_INTERVAL_SECONDS < datetime.datetime.now().timestamp():
+                if self.__availability_last_checked is None or (
+                        self.__availability_last_checked + G6Device.AVAILABILITY_CHECK_INTERVAL_SECONDS) < datetime.datetime.now().timestamp():
                     self.__availability_last_checked = datetime.datetime.now().timestamp()
 
                     # check the G6 is connected
@@ -215,12 +216,13 @@ class G6Device:
 
         def __init__(self, device_path: str):
             self.__device_path = device_path
-            self.__available = True
-            self.__availability_last_checked = datetime.datetime.now().timestamp()
+            self.__available = False
+            self.__availability_last_checked = None
 
         def is_available(self) -> bool:
             try:
-                if self.__availability_last_checked + G6Device.AVAILABILITY_CHECK_INTERVAL_SECONDS < datetime.datetime.now().timestamp():
+                if self.__availability_last_checked is None or (
+                        self.__availability_last_checked + G6Device.AVAILABILITY_CHECK_INTERVAL_SECONDS) < datetime.datetime.now().timestamp():
                     self.__availability_last_checked = datetime.datetime.now().timestamp()
                     # check the G6 is connected, and thus available
                     self.__available = _detect_device_hid().get_device_path() == self.get_device_path()
@@ -244,7 +246,8 @@ class G6Device:
                 h = hid.device()
                 try:
                     if dry_run:
-                        print(f"Opening the device '{self.__device_path}': This is a dry run. Device has not been opened.")
+                        print(f"Opening the device '{self.__device_path}':"
+                              f" This is a dry run. Device has not been opened.")
                     else:
                         h.open_path(self.__device_path)
                         print(f"Opening the device '{self.__device_path}': ok.")
