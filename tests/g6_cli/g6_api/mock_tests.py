@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from unittest.mock import MagicMock
 
 import pytest
 
 import g6_cli.g6_api as g6_api
 from g6_cli.g6_core import G6Device
+from g6_cli.g6_spec import AudioFeature, PlaybackFilter, SmartVolumeSpecialHex, Channel
+from g6_cli.g6_spec.decoder import DecoderMode
+from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
 
 
 @pytest.fixture()
@@ -18,155 +22,150 @@ def api(monkeypatch: pytest.MonkeyPatch) -> g6_api.G6Api:
     return g6_api.G6Api(dry_run=True)
 
 
-AUDIO_CASES = [
-    # --- Playback (audio) ---
-    ("playback_mute", "playback_mute_spec", (True,), {}),
-    ("playback_mute", "playback_mute_spec", (False,), {}),
-    ("playback_speakers_to_stereo", "speakers_to_stereo_spec", (), {}),
-    ("playback_speakers_to_5_1", "speakers_to_5_1_spec", (), {}),
-    ("playback_speakers_to_7_1", "speakers_to_7_1_spec", (), {}),
-    ("playback_headphones_to_stereo", "headphones_to_stereo_spec", (), {}),
-    ("playback_headphones_to_5_1", "headphones_to_5_1_spec", (), {}),
-    ("playback_headphones_to_7_1", "headphones_to_7_1_spec", (), {}),
-    ("playback_volume", "playback_volume_spec", (0,), {}),
-    ("playback_volume", "playback_volume_spec", (50,), {}),
-    ("playback_volume", "playback_volume_spec", (100,), {}),
-    # --- Mixer (audio) ---
-    ("mixer_playback_mute", "mixer_playback_mute_spec", (True,), {}),
-    ("mixer_playback_mute", "mixer_playback_mute_spec", (False,), {}),
-    ("mixer_monitoring_line_in_mute", "monitoring_line_in_mute_spec", (True,), {}),
-    ("mixer_monitoring_line_in_mute", "monitoring_line_in_mute_spec", (False,), {}),
-    ("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", (0,), {}),
-    ("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", (37,), {}),
-    ("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", (100,), {}),
-    ("mixer_monitoring_external_mic_mute", "monitoring_external_mic_mute_spec", (True,), {}),
-    ("mixer_monitoring_external_mic_mute", "monitoring_external_mic_mute_spec", (False,), {}),
-    ("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", (0,), {}),
-    ("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", (12,), {}),
-    ("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", (100,), {}),
-    ("mixer_monitoring_spdif_in_mute", "monitoring_spdif_in_mute_spec", (True,), {}),
-    ("mixer_monitoring_spdif_in_mute", "monitoring_spdif_in_mute_spec", (False,), {}),
-    ("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", (0,), {}),
-    ("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", (88,), {}),
-    ("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", (100,), {}),
-    ("mixer_recording_line_in_mute", "recording_line_in_mute_spec", (True,), {}),
-    ("mixer_recording_line_in_mute", "recording_line_in_mute_spec", (False,), {}),
-    ("mixer_recording_line_in_volume", "recording_line_in_volume_spec", (0,), {}),
-    ("mixer_recording_line_in_volume", "recording_line_in_volume_spec", (61,), {}),
-    ("mixer_recording_line_in_volume", "recording_line_in_volume_spec", (100,), {}),
-    ("mixer_recording_external_mic_mute", "recording_external_mic_mute_spec", (True,), {}),
-    ("mixer_recording_external_mic_mute", "recording_external_mic_mute_spec", (False,), {}),
-    ("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", (0,), {}),
-    ("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", (73,), {}),
-    ("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", (100,), {}),
-    ("mixer_recording_spdif_in_mute", "recording_spdif_in_mute_spec", (True,), {}),
-    ("mixer_recording_spdif_in_mute", "recording_spdif_in_mute_spec", (False,), {}),
-    ("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", (0,), {}),
-    ("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", (9,), {}),
-    ("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", (100,), {}),
-    ("mixer_recording_what_u_hear_mute", "recording_what_u_hear_mute_spec", (True,), {}),
-    ("mixer_recording_what_u_hear_mute", "recording_what_u_hear_mute_spec", (False,), {}),
-    ("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", (0,), {}),
-    ("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", (44,), {}),
-    ("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", (100,), {}),
-    # --- Recording (audio) ---
-    ("recording_mute", "recording_mute_spec", (True,), {}),
-    ("recording_mute", "recording_mute_spec", (False,), {}),
-    ("recording_mic_recording_volume", "mic_recording_volume_spec", (0,), {}),
-    ("recording_mic_recording_volume", "mic_recording_volume_spec", (29,), {}),
-    ("recording_mic_recording_volume", "mic_recording_volume_spec", (100,), {}),
-    ("recording_mic_monitoring", "mic_monitoring_spec", (0,), {}),
-    ("recording_mic_monitoring", "mic_monitoring_spec", (65,), {}),
-    ("recording_mic_monitoring", "mic_monitoring_spec", (100,), {}),
-]
+# args_factory returns (args_tuple, kwargs_dict)
+ArgFactory = Callable[[], tuple[tuple, dict]]
 
-HID_CASES = [
-    # --- Playback (hid) ---
-    ("playback_toggle_to_speakers", "toggle_to_speakers_spec", (), {}),
-    ("playback_toggle_to_headphones", "toggle_to_headphones_spec", (), {}),
-    ("playback_enable_direct_mode", "enable_direct_mode_spec", (True,), {}),
-    ("playback_enable_direct_mode", "enable_direct_mode_spec", (False,), {}),
-    ("playback_enable_spdif_out_direct_mode", "enable_spdif_out_direct_mode_spec", (True,), {}),
-    ("playback_enable_spdif_out_direct_mode", "enable_spdif_out_direct_mode_spec", (False,), {}),
-    ("playback_filter", "playback_filter_spec", (object(),), {}),
-    # --- Decoder (hid) ---
-    ("decoder_mode", "decoder_mode_spec", (object(),), {}),
-    # --- Lighting (hid) ---
-    ("lighting_disable", "lighting_disable_spec", (), {}),
-    ("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", (), {"red": 0, "green": 0, "blue": 0}),
-    ("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", (), {"red": 12, "green": 34, "blue": 56}),
-    ("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", (), {"red": 255, "green": 255, "blue": 255}),
-    # --- Recording (hid) ---
-    ("recording_mic_boost", "mic_boost_spec", (0,), {}),
-    ("recording_mic_boost", "mic_boost_spec", (10,), {}),
-    ("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", (True,), {}),
-    ("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", (False,), {}),
-    ("recording_voice_clarity_level", "voice_clarity_level_spec", (0,), {}),
-    ("recording_voice_clarity_level", "voice_clarity_level_spec", (33,), {}),
-    ("recording_voice_clarity_level", "voice_clarity_level_spec", (100,), {}),
-    ("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", (True,), {}),
-    ("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", (False,), {}),
-    ("recording_smart_volume_enabled", "smart_volume_enabled_spec", (True,), {}),
-    ("recording_smart_volume_enabled", "smart_volume_enabled_spec", (False,), {}),
-    ("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", (True,), {}),
-    ("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", (False,), {}),
-    ("recording_mic_equalizer_preset", "mic_equalizer_preset_spec", (object(),), {}),
-    # --- SBX (hid) ---
-    (
-        "sbx_toggle",
-        "sbx_toggle_spec",
-        (),
-        {"audio_feature": object(), "activate": True},
-    ),
-    (
-        "sbx_toggle",
-        "sbx_toggle_spec",
-        (),
-        {"audio_feature": object(), "activate": False},
-    ),
-    (
-        "sbx_slider",
-        "sbx_slider_spec",
-        (),
-        {"audio_feature": object(), "value": 0},
-    ),
-    (
-        "sbx_slider",
-        "sbx_slider_spec",
-        (),
-        {"audio_feature": object(), "value": 42},
-    ),
-    (
-        "sbx_slider",
-        "sbx_slider_spec",
-        (),
-        {"audio_feature": object(), "value": 100},
-    ),
-    (
-        "sbx_smart_volume_special",
-        "sbx_smart_volume_special_spec",
-        (),
-        {"smart_volume_special_hex": object()},
-    ),
-]
+# noinspection PyListCreation
+AUDIO_CASES: list[tuple[str, str, ArgFactory]] = []
+
+# @formatter:off
+# --- Playback (audio) ---
+AUDIO_CASES.append(("playback_mute", "playback_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("playback_mute", "playback_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("playback_speakers_to_stereo", "speakers_to_stereo_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_speakers_to_5_1", "speakers_to_5_1_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_speakers_to_7_1", "speakers_to_7_1_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_headphones_to_stereo", "headphones_to_stereo_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_headphones_to_5_1", "headphones_to_5_1_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_headphones_to_7_1", "headphones_to_7_1_spec", lambda: ((), {})))
+AUDIO_CASES.append(("playback_volume", "playback_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("playback_volume", "playback_volume_spec", lambda: ((), {"volume_percent": 50, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("playback_volume", "playback_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+
+# --- Mixer (audio) ---
+AUDIO_CASES.append(("mixer_playback_mute", "mixer_playback_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_playback_mute", "mixer_playback_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_monitoring_line_in_mute", "monitoring_line_in_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_monitoring_line_in_mute", "monitoring_line_in_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", lambda: ((), {"volume_percent": 37, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_line_in_volume", "monitoring_line_in_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_external_mic_mute", "monitoring_external_mic_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_monitoring_external_mic_mute", "monitoring_external_mic_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", lambda: ((), {"volume_percent": 12, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_external_mic_volume", "monitoring_external_mic_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_spdif_in_mute", "monitoring_spdif_in_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_monitoring_spdif_in_mute", "monitoring_spdif_in_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", lambda: ((), {"volume_percent": 88, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_monitoring_spdif_in_volume", "monitoring_spdif_in_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_line_in_mute", "recording_line_in_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_recording_line_in_mute", "recording_line_in_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_recording_line_in_volume", "recording_line_in_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_line_in_volume", "recording_line_in_volume_spec", lambda: ((), {"volume_percent": 61, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_line_in_volume", "recording_line_in_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_external_mic_mute", "recording_external_mic_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_recording_external_mic_mute", "recording_external_mic_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", lambda: ((), {"volume_percent": 73, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_external_mic_volume", "recording_external_mic_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_spdif_in_mute", "recording_spdif_in_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_recording_spdif_in_mute", "recording_spdif_in_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", lambda: ((), {"volume_percent": 9, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_spdif_in_volume", "recording_spdif_in_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_what_u_hear_mute", "recording_what_u_hear_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("mixer_recording_what_u_hear_mute", "recording_what_u_hear_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", lambda: ((), {"volume_percent": 44, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("mixer_recording_what_u_hear_volume", "recording_what_u_hear_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+
+# --- Recording (audio) ---
+AUDIO_CASES.append(("recording_mute", "recording_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("recording_mute", "recording_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("recording_mic_recording_volume", "mic_recording_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("recording_mic_recording_volume", "mic_recording_volume_spec", lambda: ((), {"volume_percent": 29, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("recording_mic_recording_volume", "mic_recording_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("recording_mic_monitoring_mute", "mic_monitoring_mute_spec", lambda: ((), {"mute": True})))
+AUDIO_CASES.append(("recording_mic_monitoring_mute", "mic_monitoring_mute_spec", lambda: ((), {"mute": False})))
+AUDIO_CASES.append(("recording_mic_monitoring_volume", "mic_monitoring_volume_spec", lambda: ((), {"volume_percent": 0, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("recording_mic_monitoring_volume", "mic_monitoring_volume_spec", lambda: ((), {"volume_percent": 65, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+AUDIO_CASES.append(("recording_mic_monitoring_volume", "mic_monitoring_volume_spec", lambda: ((), {"volume_percent": 100, "channels": {Channel.CHANNEL_1, Channel.CHANNEL_2}})))
+
+# noinspection PyListCreation
+HID_CASES: list[tuple[str, str, ArgFactory]] = []
+
+# --- Playback (hid) ---
+HID_CASES.append(("playback_toggle_to_speakers", "toggle_to_speakers_spec", lambda: ((), {})))
+HID_CASES.append(("playback_toggle_to_headphones", "toggle_to_headphones_spec", lambda: ((), {})))
+HID_CASES.append(("playback_enable_direct_mode", "enable_direct_mode_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("playback_enable_direct_mode", "enable_direct_mode_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("playback_enable_spdif_out_direct_mode", "enable_spdif_out_direct_mode_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("playback_enable_spdif_out_direct_mode", "enable_spdif_out_direct_mode_spec", lambda: ((), {"enable": False})))
+for playback_filter in PlaybackFilter:
+    HID_CASES.append(("playback_filter", "playback_filter_spec", lambda pf=playback_filter: ((), {"playback_filter_enum": pf})))
+
+# --- Decoder (hid) ---
+for decoder in DecoderMode:
+    HID_CASES.append(("decoder_mode", "decoder_mode_spec", lambda d=decoder: ((), {"decoder_mode_enum": d})))
+
+# --- Lighting (hid) ---
+HID_CASES.append(("lighting_disable", "lighting_disable_spec", lambda: ((), {})))
+HID_CASES.append(("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", lambda: ((), {"red": 0, "green": 0, "blue": 0})))
+HID_CASES.append(("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", lambda: ((), {"red": 12, "green": 34, "blue": 56})))
+HID_CASES.append(("lighting_enable_set_rgb", "lighting_enable_set_rgb_spec", lambda: ((), {"red": 255, "green": 255, "blue": 255})))
+
+# --- Recording (hid) ---
+HID_CASES.append(("recording_mic_boost", "mic_boost_spec", lambda: ((), {"decibel": 0})))
+HID_CASES.append(("recording_mic_boost", "mic_boost_spec", lambda: ((), {"decibel": 10})))
+HID_CASES.append(("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 0})))
+HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 33})))
+HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 100})))
+HID_CASES.append(("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_smart_volume_enabled", "smart_volume_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_smart_volume_enabled", "smart_volume_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", lambda: ((), {"enable": False})))
+for preset in MicrophoneEqualizerPreset:
+    HID_CASES.append(("recording_mic_equalizer_preset", "mic_equalizer_preset_spec", lambda p=preset: ((), {"preset": p})))
+
+# --- SBX (hid) ---
+for audio_feature in AudioFeature:
+    HID_CASES.append(("sbx_toggle", "sbx_toggle_spec", lambda af=audio_feature: ((), {"audio_feature": af, "activate": True})))
+    HID_CASES.append(("sbx_toggle", "sbx_toggle_spec", lambda af=audio_feature: ((), {"audio_feature": af, "activate": False})))
+for audio_feature in AudioFeature:
+    HID_CASES.append(("sbx_slider", "sbx_slider_spec", lambda af=audio_feature: ((), {"audio_feature": af, "value": 0})))
+    HID_CASES.append(("sbx_slider", "sbx_slider_spec", lambda af=audio_feature: ((), {"audio_feature": af, "value": 42})))
+    HID_CASES.append(("sbx_slider", "sbx_slider_spec", lambda af=audio_feature: ((), {"audio_feature": af, "value": 100})))
+for smart_volume_special_hex in SmartVolumeSpecialHex:
+    HID_CASES.append(("sbx_smart_volume_special","sbx_smart_volume_special_spec", lambda sv=smart_volume_special_hex: ((), {"smart_volume_special_hex": sv}),))
+# @formatter:on
 
 
-@pytest.mark.parametrize("method_name,spec_name,args,kwargs", AUDIO_CASES)
+@pytest.mark.parametrize(
+    "method_name,spec_name,args_factory",
+    AUDIO_CASES,
+    ids=[f"{i}__{method_name}" for i, (method_name, _, _) in enumerate(AUDIO_CASES)],
+)
 def test_g6api_audio_methods_call_audio_sender(
         api: g6_api.G6Api,
-
         monkeypatch: pytest.MonkeyPatch,
         method_name: str,
         spec_name: str,
-        args: tuple,
-        kwargs: dict,
+        args_factory: ArgFactory,
 ) -> None:
+    args, kwargs = args_factory()
+
     # Create a mock for hex data ("*_spec()" method in g6_api)
     expected_audio_data_list = [b"audio-payload"]
     spec_mock = MagicMock(return_value=expected_audio_data_list)
     monkeypatch.setattr(g6_api, spec_name, spec_mock)
 
-    # Patch the instance method: api.__device.send_hid_data_to_device(...)
+    # Patch the instance method: api.__device.send_audio_data_to_device(...)
     device = getattr(api, "_G6Api__device")
     send_audio_mock = MagicMock()
     monkeypatch.setattr(device, "send_audio_data_to_device", send_audio_mock)
@@ -178,22 +177,27 @@ def test_g6api_audio_methods_call_audio_sender(
     # Assert: correct spec method called
     spec_mock.assert_called_once_with(*args, **kwargs)
 
-    # Assert: send_hid_data_to_device called correctly
+    # Assert: send_audio_data_to_device called correctly
     send_audio_mock.assert_called_once_with(
         audio_data_list=expected_audio_data_list,
         dry_run=True,
     )
 
 
-@pytest.mark.parametrize("method_name,spec_name,args,kwargs", HID_CASES)
+@pytest.mark.parametrize(
+    "method_name,spec_name,args_factory",
+    HID_CASES,
+    ids=[f"{i}__{method_name}" for i, (method_name, _, _) in enumerate(HID_CASES)],
+)
 def test_g6api_hid_methods_call_hid_sender(
         api: g6_api.G6Api,
         monkeypatch: pytest.MonkeyPatch,
         method_name: str,
         spec_name: str,
-        args: tuple,
-        kwargs: dict,
+        args_factory: ArgFactory,
 ) -> None:
+    args, kwargs = args_factory()
+
     # Create a mock for hex data ("*_spec()" method in g6_api)
     expected_hid_data_list = [b"hid-payload"]
     spec_mock = MagicMock(return_value=expected_hid_data_list)

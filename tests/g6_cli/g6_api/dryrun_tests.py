@@ -15,7 +15,6 @@ def api(monkeypatch: pytest.MonkeyPatch) -> g6_api.G6Api:
     return g6_api.G6Api(dry_run=True)
 
 
-# Each case: (method_name, args_factory)
 # args_factory returns (args_tuple, kwargs_dict)
 ArgFactory = Callable[[], tuple[tuple, dict]]
 
@@ -99,9 +98,11 @@ CASES.append(("recording_mic_recording_volume", lambda: ((0,), {})))
 CASES.append(("recording_mic_recording_volume", lambda: ((30,), {})))
 CASES.append(("recording_mic_recording_volume", lambda: ((100,), {})))
 CASES.append(("recording_mic_boost", lambda: ((0,), {})))
-CASES.append(("recording_mic_monitoring", lambda: ((0,), {})))
-CASES.append(("recording_mic_monitoring", lambda: ((70,), {})))
-CASES.append(("recording_mic_monitoring", lambda: ((100,), {})))
+CASES.append(("recording_mic_monitoring_mute", lambda: ((True,), {})))
+CASES.append(("recording_mic_monitoring_mute", lambda: ((False,), {})))
+CASES.append(("recording_mic_monitoring_volume", lambda: ((0,), {})))
+CASES.append(("recording_mic_monitoring_volume", lambda: ((70,), {})))
+CASES.append(("recording_mic_monitoring_volume", lambda: ((100,), {})))
 CASES.append(("recording_voice_clarity_enabled", lambda: ((True,), {})))
 CASES.append(("recording_voice_clarity_enabled", lambda: ((False,), {})))
 CASES.append(("recording_voice_clarity_level", lambda: ((0,), {})))

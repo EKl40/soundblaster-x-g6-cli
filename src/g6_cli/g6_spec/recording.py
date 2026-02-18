@@ -104,7 +104,24 @@ def mic_boost(decibel: int) -> list[UsbHidDataFragment]:
     ]
 
 
-def mic_monitoring(volume_percent: int, channels: set[Channel]) -> list[UsbAudioData]:
+def mic_monitoring_mute(mute: bool) -> list[UsbAudioData]:
+    """
+    Mute or unmute mic monitoring.
+    :param mute: True to mute mic monitoring, False to unmute.
+    :return: The list of UsbAudioData objects to send to the G6, to mute or unmute mic monitoring.
+    """
+    return [
+        UsbAudioData(
+            b_request=B_REQUEST,
+            w_value=bytes.fromhex('0001'),
+            w_index=MONITORING_EXTERNAL_MIC,
+            w_length=bytes.fromhex('0100'),
+            data_fragment=bytes.fromhex('01' if mute else '00'),
+        )
+    ]
+
+
+def mic_monitoring_volume(volume_percent: int, channels: set[Channel]) -> list[UsbAudioData]:
     """
     Set mic monitoring level (sidetone) for both channels.
     :param volume_percent: The monitoring level to set. Supported: 0, 10, 20, ..., 100 (as captured in the table).
