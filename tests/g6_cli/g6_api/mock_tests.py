@@ -178,10 +178,7 @@ def test_g6api_audio_methods_call_audio_sender(
     spec_mock.assert_called_once_with(*args, **kwargs)
 
     # Assert: send_audio_data_to_device called correctly
-    send_audio_mock.assert_called_once_with(
-        audio_data_list=expected_audio_data_list,
-        dry_run=True,
-    )
+    send_audio_mock.assert_called_once_with(audio_data_list=expected_audio_data_list)
 
 
 @pytest.mark.parametrize(
@@ -216,7 +213,4 @@ def test_g6api_hid_methods_call_hid_sender(
     spec_mock.assert_called_once_with(*args, **kwargs)
 
     # Assert: send_hid_data_to_device called correctly
-    send_hid_mock.assert_called_once_with(
-        hid_data_list=expected_hid_data_list,
-        dry_run=True,
-    )
+    send_hid_mock.assert_called_once_with(hid_data_list=expected_hid_data_list)

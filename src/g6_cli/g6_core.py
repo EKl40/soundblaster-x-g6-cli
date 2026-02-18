@@ -44,7 +44,7 @@ class G6Device:
         def get_b_configuration_value(self) -> int:
             return self.__b_configuration_value
 
-        def is_available(self) -> bool:
+        def is_available(self, dry_run: bool) -> bool:
             try:
                 # check availability in intervals
                 if self.__availability_last_checked is None or (
@@ -55,7 +55,7 @@ class G6Device:
                     device_connected = _detect_device_audio_control().get_device_path() == self.__device_path
                     if device_connected:
                         # refresh kernel driver attached state
-                        self.__kernel_driver_attached = self.__check_kernel_driver_attached()
+                        self.__kernel_driver_attached = self.__check_kernel_driver_attached(dry_run=dry_run)
 
                     # interface is available if the G6 is connected and the kernel driver is not attached
                     self.__available = device_connected and not self.__kernel_driver_attached and self.__interface_claimed
@@ -66,16 +66,20 @@ class G6Device:
 
             return self.__available
 
-        def claim_interface(self):
+        def claim_interface(self, dry_run: bool):
             # refresh kernel driver attached state
-            self.__kernel_driver_attached = self.__check_kernel_driver_attached()
+            self.__kernel_driver_attached = self.__check_kernel_driver_attached(dry_run=dry_run)
 
             # try to detach the kernel driver
             if self.__kernel_driver_attached:
                 try:
                     print('About to detach kernel driver from G6 device ...')
-                    self.__usb_device.detach_kernel_driver(G6_AUDIO_CONTROL_INTERFACE)
-                    self.__kernel_driver_attached = False
+                    if dry_run:
+                        print('This is a dry run. No kernel driver is detached from the G6 device!')
+                        self.__kernel_driver_attached = False
+                    else:
+                        self.__usb_device.detach_kernel_driver(G6_AUDIO_CONTROL_INTERFACE)
+                        self.__kernel_driver_attached = False
                     print('About to detach kernel driver from G6 device: ok.')
                 except usb.core.USBError as e:
                     print('About to detach kernel driver from G6 device: failed!')
@@ -87,14 +91,20 @@ class G6Device:
                 try:
                     # claim the interface
                     print('About to claim the audio interface from G6 device ...')
-                    usb.util.claim_interface(self.__usb_device, G6_AUDIO_CONTROL_INTERFACE)
+                    if dry_run:
+                        print('This is a dry run. No interface is claimed from the G6 device!')
+                    else:
+                        usb.util.claim_interface(self.__usb_device, G6_AUDIO_CONTROL_INTERFACE)
                     self.__interface_claimed = True
                     print('About to claim the audio interface from G6 device: ok.')
 
                     # try to configure the device
                     try:
                         print('About to configure USB device ...')
-                        self.__usb_device.set_configuration(self.__b_configuration_value)
+                        if dry_run:
+                            print('This is a dry run. No configuration is applied to the G6 device!')
+                        else:
+                            self.__usb_device.set_configuration(self.__b_configuration_value)
                         print('About to configure USB device: ok.')
                     except usb.core.USBError as e:
                         print('About to configure USB device: failed.')
@@ -105,9 +115,9 @@ class G6Device:
                     print(f'Failed to claim the audio interface from G6 device: {e}', file=sys.stderr)
                     self.__interface_claimed = False
 
-        def release_interface(self):
+        def release_interface(self, dry_run: bool):
             # refresh kernel driver attached state
-            self.__kernel_driver_attached = self.__check_kernel_driver_attached()
+            self.__kernel_driver_attached = self.__check_kernel_driver_attached(dry_run=dry_run)
 
             # try to release the interface
             if self.__interface_claimed:
@@ -198,15 +208,20 @@ class G6Device:
                         print(f'About to send audio data to G6 device: failed!')
                         print(f'Failed to send audio data to G6 device: {e}', file=sys.stderr)
 
-        def __check_kernel_driver_attached(self) -> bool:
+        def __check_kernel_driver_attached(self, dry_run: bool) -> bool:
             print('About to check if kernel driver is attached to G6 device ...')
             try:
-                if self.__usb_device.is_kernel_driver_active(G6_AUDIO_CONTROL_INTERFACE):
-                    print('About to check if kernel driver is attached to G6 device: kernel is attached.')
-                    return True
-                else:
-                    print('About to check if kernel driver is attached to G6 device: kernel is detached.')
+                if dry_run:
+                    print(
+                        'About to check if kernel driver is attached to G6 device: This is a dry run - kernel driver is not checked!')
                     return False
+                else:
+                    if self.__usb_device.is_kernel_driver_active(G6_AUDIO_CONTROL_INTERFACE):
+                        print('About to check if kernel driver is attached to G6 device: kernel is attached.')
+                        return True
+                    else:
+                        print('About to check if kernel driver is attached to G6 device: kernel is detached.')
+                        return False
             except usb.core.USBError as e:
                 print('About to check if kernel driver is attached to G6 device: failed!')
                 print(f'Failed to check if kernel driver is attached to G6 device: {e}', file=sys.stderr)
@@ -219,13 +234,21 @@ class G6Device:
             self.__available = False
             self.__availability_last_checked = None
 
-        def is_available(self) -> bool:
+        def is_available(self, dry_run: bool) -> bool:
             try:
                 if self.__availability_last_checked is None or (
                         self.__availability_last_checked + G6Device.AVAILABILITY_CHECK_INTERVAL_SECONDS) < datetime.datetime.now().timestamp():
                     self.__availability_last_checked = datetime.datetime.now().timestamp()
                     # check the G6 is connected, and thus available
-                    self.__available = _detect_device_hid().get_device_path() == self.get_device_path()
+                    print(f"About to check availability of HID interface at path: {self.__device_path} ...")
+                    if dry_run:
+                        print(f"About to check availability of HID interface at path: {self.__device_path}:"
+                              f" This is a dry run. No availability check is performed!")
+                        self.__available = True
+                    else:
+                        self.__available = _detect_device_hid().get_device_path() == self.get_device_path()
+                        print(f"About to check availability of HID interface at path: {self.__device_path}:"
+                              f" {"available" if self.__available else "unavailable"}")
             except IOError:
                 print(f'Failed to check availability of HID interface at path: {self.__device_path}', file=sys.stderr)
                 self.__available = False
@@ -315,9 +338,10 @@ class G6Device:
                     '\nIf the file already exists, it might not be used by the kernel. Try to reload the configuration with:')
                 print("`sudo udevadm trigger`")
 
-    def __init__(self, audio_interface: AudioInterface, hid_interface: HidInterface):
+    def __init__(self, audio_interface: AudioInterface, hid_interface: HidInterface, dry_run: bool):
         self.__audio_interface = audio_interface
         self.__hid_interface = hid_interface
+        self.__dry_run = dry_run
 
     def get_audio_interface_device_path(self) -> str:
         return self.__audio_interface.get_device_path()
@@ -326,22 +350,22 @@ class G6Device:
         return self.__hid_interface.get_device_path()
 
     def is_audio_interface_available(self) -> bool:
-        return self.__audio_interface.is_available()
+        return self.__audio_interface.is_available(dry_run=self.__dry_run)
 
     def claim_audio_interface(self):
-        self.__audio_interface.claim_interface()
+        self.__audio_interface.claim_interface(dry_run=self.__dry_run)
 
     def release_audio_interface(self):
-        self.__audio_interface.release_interface()
+        self.__audio_interface.release_interface(dry_run=self.__dry_run)
 
-    def send_audio_data_to_device(self, audio_data_list: list[UsbAudioData], dry_run: bool) -> None:
-        self.__audio_interface.send_audio_data_to_device(audio_data_list, dry_run)
+    def send_audio_data_to_device(self, audio_data_list: list[UsbAudioData]) -> None:
+        self.__audio_interface.send_audio_data_to_device(audio_data_list=audio_data_list, dry_run=self.__dry_run)
 
     def is_hid_interface_available(self) -> bool:
-        return self.__hid_interface.is_available()
+        return self.__hid_interface.is_available(dry_run=self.__dry_run)
 
-    def send_hid_data_to_device(self, hid_data_list: list[UsbHidDataFragment], dry_run: bool) -> None:
-        self.__hid_interface.send_hid_data_to_device(hid_data_list, dry_run)
+    def send_hid_data_to_device(self, hid_data_list: list[UsbHidDataFragment]) -> None:
+        self.__hid_interface.send_hid_data_to_device(hid_data_list=hid_data_list, dry_run=self.__dry_run)
 
 
 def list_all_hid_devices():
@@ -356,7 +380,7 @@ def list_all_hid_devices():
         print()
 
 
-def detect_device() -> G6Device:
+def detect_device(dry_run: bool) -> G6Device:
     """
     Tries to detect the SoundBlaster X G6 device and returns the device path to it.
 
@@ -378,7 +402,8 @@ def detect_device() -> G6Device:
     :return: The unique device_path to the G6.
     """
     return G6Device(audio_interface=_detect_device_audio_control(),
-                    hid_interface=_detect_device_hid())
+                    hid_interface=_detect_device_hid(),
+                    dry_run=dry_run)
 
 
 def _detect_device_audio_control() -> G6Device.AudioInterface:
