@@ -26,7 +26,7 @@ PAYLOAD_HEX_LINE_PATTERN = r'^[a-f0-9]{128}$'
 
 
 class G6Device:
-    AVAILABILITY_CHECK_INTERVAL_SECONDS = 10
+    AVAILABILITY_CHECK_INTERVAL_SECONDS = 0.1
 
     class AudioInterface:
         def __init__(self, usb_device: usb.core.Device, device_path: str, b_configuration_value: int):

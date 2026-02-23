@@ -120,6 +120,12 @@ class G6Api:
         # --- Restart PipeWire (user services) ---
         reload_pipewire()
 
+    def is_hid_interface_available(self) -> bool:
+        return self.__device.is_hid_interface_available()
+
+    def is_audio_interface_available(self) -> bool:
+        return self.__device.is_audio_interface_available()
+
     # --- Playback ---
 
     def playback_mute(self, mute: bool) -> None:
