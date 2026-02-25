@@ -121,17 +121,17 @@ HID_CASES.append(("recording_mic_boost", "mic_boost_spec", lambda: ((), {"decibe
 HID_CASES.append(("recording_mic_boost", "mic_boost_spec", lambda: ((), {"decibel": 10})))
 HID_CASES.append(("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", lambda: ((), {"enable": True})))
 HID_CASES.append(("recording_voice_clarity_enabled", "voice_clarity_enabled_spec", lambda: ((), {"enable": False})))
-HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 0})))
-HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 33})))
-HID_CASES.append(("recording_voice_clarity_level", "voice_clarity_level_spec", lambda: ((), {"level_percent": 100})))
-HID_CASES.append(("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": True})))
-HID_CASES.append(("recording_acoustic_echo_cancellation_enabled", "acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": False})))
-HID_CASES.append(("recording_smart_volume_enabled", "smart_volume_enabled_spec", lambda: ((), {"enable": True})))
-HID_CASES.append(("recording_smart_volume_enabled", "smart_volume_enabled_spec", lambda: ((), {"enable": False})))
-HID_CASES.append(("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", lambda: ((), {"enable": True})))
-HID_CASES.append(("recording_mic_equalizer_enabled", "mic_equalizer_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_voice_clarity_noise_reduction_level", "voice_clarity_noise_reduction_level_spec", lambda: ((), {"level_percent": 0})))
+HID_CASES.append(("recording_voice_clarity_noise_reduction_level", "voice_clarity_noise_reduction_level_spec", lambda: ((), {"level_percent": 33})))
+HID_CASES.append(("recording_voice_clarity_noise_reduction_level", "voice_clarity_noise_reduction_level_spec", lambda: ((), {"level_percent": 100})))
+HID_CASES.append(("recording_voice_clarity_acoustic_echo_cancellation_enabled", "voice_clarity_acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_voice_clarity_acoustic_echo_cancellation_enabled", "voice_clarity_acoustic_echo_cancellation_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_voice_clarity_smart_volume_enabled", "voice_clarity_smart_volume_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_voice_clarity_smart_volume_enabled", "voice_clarity_smart_volume_enabled_spec", lambda: ((), {"enable": False})))
+HID_CASES.append(("recording_voice_clarity_mic_equalizer_enabled", "voice_clarity_mic_equalizer_enabled_spec", lambda: ((), {"enable": True})))
+HID_CASES.append(("recording_voice_clarity_mic_equalizer_enabled", "voice_clarity_mic_equalizer_enabled_spec", lambda: ((), {"enable": False})))
 for preset in MicrophoneEqualizerPreset:
-    HID_CASES.append(("recording_mic_equalizer_preset", "mic_equalizer_preset_spec", lambda p=preset: ((), {"preset": p})))
+    HID_CASES.append(("recording_voice_clarity_mic_equalizer_preset", "voice_clarity_mic_equalizer_preset_spec", lambda p=preset: ((), {"preset": p})))
 
 # --- SBX (hid) ---
 for audio_feature in AudioFeature:

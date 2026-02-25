@@ -3,14 +3,16 @@ from g6_cli.g6_spec import (
     get_mic_monitoring_volume_percent_bytes,
     get_mic_recording_volume_percent_bytes, Channel, B_REQUEST, PLAYBACK_PLAYBACK, MONITORING_LINE_IN,
     MONITORING_EXTERNAL_MIC, MONITORING_SPDIF_IN, RECORDING_LINE_IN, RECORDING_EXTERNAL_MIC, RECORDING_SPDIF_IN,
-    RECORDING_WHAT_U_HEAR,
+    RECORDING_WHAT_U_HEAR, ValueRange,
 )
+
+MIXER_VR = ValueRange(0, 10, 100)
 
 
 def _validate_volume_percent(volume_percent: int) -> None:
-    if volume_percent < 0 or volume_percent > 100:
+    if volume_percent < MIXER_VR.get_min_value() or volume_percent > MIXER_VR.get_max_value():
         raise ValueError(f"Volume percentage must be between 0 and 100, got {volume_percent}")
-    if volume_percent % 10 != 0:
+    if volume_percent % MIXER_VR.get_step_size() != 0:
         raise ValueError(f"Volume percentage must be a multiple of 10, got {volume_percent}")
 
 

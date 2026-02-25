@@ -3,7 +3,12 @@ from enum import Enum
 from g6_cli.g6_spec import UsbAudioData, UsbHidDataFragment, get_mic_recording_volume_percent_bytes, \
     get_mic_monitoring_volume_percent_bytes, get_mic_boost_decibel_bytes, DataFragmentMode, \
     get_mic_voice_clarity_level_bytes, DataFragmentStatic, get_slider_percent_bytes, Channel, B_REQUEST, \
-    RECORDING_EXTERNAL_MIC, MONITORING_EXTERNAL_MIC
+    RECORDING_EXTERNAL_MIC, MONITORING_EXTERNAL_MIC, ValueRange
+
+MIC_RECORDING_VOLUME_VR = ValueRange(0, 10, 100)
+MIC_BOOST_DECIBEL_VR = ValueRange(0, 10, 30)
+MIC_MONITORING_VOLUME_VR = ValueRange(0, 10, 100)
+VOICE_CLARITY_NOISE_REDUCTION_LEVEL_VR = ValueRange(0, 20, 100)
 
 
 class MicrophoneEqualizerPreset(Enum):
@@ -66,9 +71,9 @@ def mic_recording_volume(volume_percent: int, channels: set[Channel]) -> list[Us
     :param channels: The channels to set the volume for.
     :return: The list of UsbAudioData objects to send to the G6, to set mic recording volume.
     """
-    if volume_percent < 0 or volume_percent > 100:
+    if volume_percent < MIC_RECORDING_VOLUME_VR.get_min_value() or volume_percent > MIC_RECORDING_VOLUME_VR.get_max_value():
         raise ValueError(f"Mic recording volume must be between 0 and 100, got {volume_percent}")
-    if volume_percent % 10 != 0:
+    if volume_percent % MIC_RECORDING_VOLUME_VR.get_step_size() != 0:
         raise ValueError(f"Mic recording volume must be a multiple of 10, got {volume_percent}")
 
     value = get_mic_recording_volume_percent_bytes(volume_percent)
@@ -89,9 +94,9 @@ def mic_boost(decibel: int) -> list[UsbHidDataFragment]:
     :param decibel: The boost level to set, in decibels. Supported: 0, 10, 20, ..., 30 dB (as captured in the table).
     :return: The list of UsbHidDataFragment objects to send to the G6, to set microphone boost level.
     """
-    if decibel < 0 or decibel > 30:
+    if decibel < MIC_BOOST_DECIBEL_VR.get_min_value() or decibel > MIC_BOOST_DECIBEL_VR.get_max_value():
         raise ValueError(f"Mic boost must be between 0 and 30 dB, got {decibel}")
-    if decibel % 10 != 0:
+    if decibel % MIC_BOOST_DECIBEL_VR.get_step_size() != 0:
         raise ValueError(f"Mic boost must be a multiple of 10 dB, got {decibel}")
 
     value = get_mic_boost_decibel_bytes(decibel)
@@ -128,9 +133,9 @@ def mic_monitoring_volume(volume_percent: int, channels: set[Channel]) -> list[U
     :param channels: The channels to set the monitoring level for.
     :return: The list of UsbAudioData objects to send to the G6, to set mic monitoring level.
     """
-    if volume_percent < 0 or volume_percent > 100:
+    if volume_percent < MIC_MONITORING_VOLUME_VR.get_min_value() or volume_percent > MIC_MONITORING_VOLUME_VR.get_max_value():
         raise ValueError(f"Mic monitoring level must be between 0 and 100, got {volume_percent}")
-    if volume_percent % 10 != 0:
+    if volume_percent % MIC_MONITORING_VOLUME_VR.get_step_size() != 0:
         raise ValueError(f"Mic monitoring level must be a multiple of 10, got {volume_percent}")
 
     value = get_mic_monitoring_volume_percent_bytes(volume_percent)
@@ -181,15 +186,15 @@ def voice_clarity_enabled(enable: bool) -> list[UsbHidDataFragment]:
     return _toggle_audio_feature(audio_feature=bytes.fromhex('04'), enable=enable)
 
 
-def voice_clarity_level(level_percent: int) -> list[UsbHidDataFragment]:
+def voice_clarity_noise_reduction_level(level_percent: int) -> list[UsbHidDataFragment]:
     """
     Set the voice clarity level for the microphone.
     :param level_percent: The voice clarity level to set. Supported: 0, 20, 40, ..., 100 (as captured in the table).
     :return: The list of UsbHidDataFragment objects to send to the G6, to set the voice clarity level.
     """
-    if level_percent < 0 or level_percent > 100:
+    if level_percent < VOICE_CLARITY_NOISE_REDUCTION_LEVEL_VR.get_min_value() or level_percent > VOICE_CLARITY_NOISE_REDUCTION_LEVEL_VR.get_max_value():
         raise ValueError(f"Voice clarity level must be between 0 and 100, got {level_percent}")
-    if level_percent % 20 != 0:
+    if level_percent % VOICE_CLARITY_NOISE_REDUCTION_LEVEL_VR.get_step_size() != 0:
         raise ValueError(f"Voice clarity level must be a multiple of 20, got {level_percent}")
 
     value = get_mic_voice_clarity_level_bytes(level_percent)
@@ -205,7 +210,7 @@ def voice_clarity_level(level_percent: int) -> list[UsbHidDataFragment]:
     ]
 
 
-def acoustic_echo_cancellation_enabled(enable: bool) -> list[UsbHidDataFragment]:
+def voice_clarity_acoustic_echo_cancellation_enabled(enable: bool) -> list[UsbHidDataFragment]:
     """
     Enable or disable the acoustic echo cancellation feature for the microphone.
     :param enable: True to enable the feature, False to disable it.
@@ -214,7 +219,7 @@ def acoustic_echo_cancellation_enabled(enable: bool) -> list[UsbHidDataFragment]
     return _toggle_audio_feature(audio_feature=bytes.fromhex('00'), enable=enable)
 
 
-def smart_volume_enabled(enable: bool) -> list[UsbHidDataFragment]:
+def voice_clarity_smart_volume_enabled(enable: bool) -> list[UsbHidDataFragment]:
     """
     Enable or disable the smart volume feature for the microphone.
     :param enable: True to enable the feature, False to disable it.
@@ -223,7 +228,7 @@ def smart_volume_enabled(enable: bool) -> list[UsbHidDataFragment]:
     return _toggle_audio_feature(audio_feature=bytes.fromhex('2C'), enable=enable)
 
 
-def mic_equalizer_enabled(enable: bool) -> list[UsbHidDataFragment]:
+def voice_clarity_mic_equalizer_enabled(enable: bool) -> list[UsbHidDataFragment]:
     """
     Enable or disable the microphone equalizer feature for the microphone.
     :param enable: True to enable the feature, False to disable it.
@@ -232,7 +237,7 @@ def mic_equalizer_enabled(enable: bool) -> list[UsbHidDataFragment]:
     return _toggle_audio_feature(audio_feature=bytes.fromhex('13'), enable=enable)
 
 
-def mic_equalizer_preset(preset: MicrophoneEqualizerPreset) -> list[UsbHidDataFragment]:
+def voice_clarity_mic_equalizer_preset(preset: MicrophoneEqualizerPreset) -> list[UsbHidDataFragment]:
     """
     Activate the specified microphone equalizer preset.
     :param preset: The preset to activate.

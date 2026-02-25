@@ -46,17 +46,17 @@ from g6_cli.g6_spec.playback import (
 )
 from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
 from g6_cli.g6_spec.recording import (
-    acoustic_echo_cancellation_enabled as acoustic_echo_cancellation_enabled_spec,
+    voice_clarity_acoustic_echo_cancellation_enabled as voice_clarity_acoustic_echo_cancellation_enabled_spec,
     mic_boost as mic_boost_spec,
-    mic_equalizer_enabled as mic_equalizer_enabled_spec,
-    mic_equalizer_preset as mic_equalizer_preset_spec,
+    voice_clarity_mic_equalizer_enabled as voice_clarity_mic_equalizer_enabled_spec,
+    voice_clarity_mic_equalizer_preset as voice_clarity_mic_equalizer_preset_spec,
     mic_monitoring_mute as mic_monitoring_mute_spec,
     mic_monitoring_volume as mic_monitoring_volume_spec,
     mic_recording_volume as mic_recording_volume_spec,
     recording_mute as recording_mute_spec,
-    smart_volume_enabled as smart_volume_enabled_spec,
+    voice_clarity_smart_volume_enabled as voice_clarity_smart_volume_enabled_spec,
     voice_clarity_enabled as voice_clarity_enabled_spec,
-    voice_clarity_level as voice_clarity_level_spec,
+    voice_clarity_noise_reduction_level as voice_clarity_noise_reduction_level_spec,
 )
 from g6_cli.g6_spec.sbx import (
     sbx_slider as sbx_slider_spec,
@@ -394,39 +394,39 @@ class G6Api:
     def recording_voice_clarity_enabled_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_voice_clarity_level(self, level_percent: int) -> None:
-        hid_data_list = voice_clarity_level_spec(level_percent=level_percent)
+    def recording_voice_clarity_noise_reduction_level(self, level_percent: int) -> None:
+        hid_data_list = voice_clarity_noise_reduction_level_spec(level_percent=level_percent)
         self.__device.send_hid_data_to_device(hid_data_list=hid_data_list)
 
-    def recording_voice_clarity_level_available(self) -> bool:
+    def recording_voice_clarity_noise_reduction_level_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_acoustic_echo_cancellation_enabled(self, enable: bool) -> None:
-        hid_data_list = acoustic_echo_cancellation_enabled_spec(enable=enable)
+    def recording_voice_clarity_acoustic_echo_cancellation_enabled(self, enable: bool) -> None:
+        hid_data_list = voice_clarity_acoustic_echo_cancellation_enabled_spec(enable=enable)
         self.__device.send_hid_data_to_device(hid_data_list=hid_data_list)
 
-    def recording_acoustic_echo_cancellation_enabled_available(self) -> bool:
+    def recording_voice_clarity_acoustic_echo_cancellation_enabled_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_smart_volume_enabled(self, enable: bool) -> None:
-        hid_data_list = smart_volume_enabled_spec(enable=enable)
+    def recording_voice_clarity_smart_volume_enabled(self, enable: bool) -> None:
+        hid_data_list = voice_clarity_smart_volume_enabled_spec(enable=enable)
         self.__device.send_hid_data_to_device(hid_data_list=hid_data_list)
 
-    def recording_smart_volume_enabled_available(self) -> bool:
+    def recording_voice_clarity_smart_volume_enabled_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_mic_equalizer_enabled(self, enable: bool) -> None:
-        hid_data_list = mic_equalizer_enabled_spec(enable=enable)
+    def recording_voice_clarity_mic_equalizer_enabled(self, enable: bool) -> None:
+        hid_data_list = voice_clarity_mic_equalizer_enabled_spec(enable=enable)
         self.__device.send_hid_data_to_device(hid_data_list=hid_data_list)
 
-    def recording_mic_equalizer_enabled_available(self) -> bool:
+    def recording_voice_clarity_mic_equalizer_enabled_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
-    def recording_mic_equalizer_preset(self, preset: MicrophoneEqualizerPreset) -> None:
-        hid_data_list = mic_equalizer_preset_spec(preset=preset)
+    def recording_voice_clarity_mic_equalizer_preset(self, preset: MicrophoneEqualizerPreset) -> None:
+        hid_data_list = voice_clarity_mic_equalizer_preset_spec(preset=preset)
         self.__device.send_hid_data_to_device(hid_data_list=hid_data_list)
 
-    def recording_mic_equalizer_preset_available(self) -> bool:
+    def recording_voice_clarity_mic_equalizer_preset_available(self) -> bool:
         return self.__device.is_hid_interface_available()
 
     # --- SBX ---

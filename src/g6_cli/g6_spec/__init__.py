@@ -126,6 +126,20 @@ class UsbHidDataFragment:
         return (f'{self.__static_prefix.hex()}{self.__mode.hex()}{self.__static_intermediate.hex()}'
                 f'{self.__audio_feature.hex()}{self.__value.hex()}{self.__additional_payload.hex()}')
 
+class ValueRange:
+    def __init__(self, min_value, step_size, max_value):
+        self.__min_value = min_value
+        self.__step_size = step_size
+        self.__max_value = max_value
+
+    def get_min_value(self):
+        return self.__min_value
+
+    def get_step_size(self):
+        return self.__step_size
+
+    def get_max_value(self):
+        return self.__max_value
 
 # --- Global values ---
 
