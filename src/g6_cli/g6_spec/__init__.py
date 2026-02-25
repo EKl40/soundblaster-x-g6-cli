@@ -40,7 +40,7 @@ class PlaybackFilter(Enum):
 
 
 class Channel(Enum):
-    CHANNEL_1 = bytes.fromhex('0201')  # LEFT
+    CHANNEL_1 = bytes.fromhex('0102')  # LEFT
     CHANNEL_2 = bytes.fromhex('0202')  # RIGHT
 
 

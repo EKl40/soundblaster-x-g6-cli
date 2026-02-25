@@ -182,7 +182,7 @@ class G6Device:
             for audio_data in audio_data_list:
                 bm_request_type_int = int.from_bytes(audio_data.get_bm_request_type(), byteorder='little')
                 b_request_int = int.from_bytes(audio_data.get_b_request(), byteorder='little')
-                w_value_int = int.from_bytes(audio_data.get_w_value(), byteorder='big')  # TODO big or little endian?
+                w_value_int = int.from_bytes(audio_data.get_w_value(), byteorder='little')
                 w_index_int = int.from_bytes(audio_data.get_w_index(), byteorder='little')
 
                 # dry run: do not send any data to the device
