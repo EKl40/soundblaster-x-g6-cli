@@ -3,8 +3,15 @@ import os.path
 import tempfile
 
 from g6_cli.g6_api import G6Api
-from g6_cli.g6_core import detect_device
-from g6_cli.g6_spec import AudioFeature, SmartVolumeSpecialHex
+from g6_cli.g6_spec import (
+    AudioFeature,
+    Channel,
+    PlaybackFilter,
+    SmartVolumeSpecialHex,
+    BOTH_CHANNELS,
+)
+from g6_cli.g6_spec.decoder import DecoderMode
+from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
 from g6_cli.g6_util import to_bool
 
 # The name of the temporary file to remember the last toggle state in. If the file could not be found. The program
@@ -14,76 +21,264 @@ TOGGLE_STATE_SPEAKERS = 'Speakers'
 TOGGLE_STATE_HEADPHONES = 'Headphones'
 
 
+def _channels_from_cli(value: str) -> set[Channel]:
+    """
+    Convert a CLI channels string into a set[Channel].
+    :param value: One of 'Both', 'Left', 'Right'
+    :return: A set[Channel] compatible with g6_api methods.
+    """
+    if value == 'Both':
+        return BOTH_CHANNELS
+    elif value == 'Left':
+        return {Channel.CHANNEL_1}
+    elif value == 'Right':
+        return {Channel.CHANNEL_2}
+    else:
+        raise ValueError(f'Unsupported channels value: {value}')
+
+
+def _decoder_mode_from_cli(value: str) -> DecoderMode:
+    """
+    Convert a CLI decoder mode string into a DecoderMode enum.
+    :param value: One of 'Normal', 'Full', 'Night'
+    :return: The DecoderMode enum value.
+    """
+    return DecoderMode[value.upper()]
+
+
 def parse_cli_args():
     """
     Parse the CLI arguments using argparse.
     Prints the CLI help to console and raises an error, if the arguments are invalid.
     :return: the parsed cli args object
     """
-    numbers = [i for i in range(0, 101)]
+    numbers_0_100 = [i for i in range(0, 101)]
+    numbers_0_30_step_10 = [i * 10 for i in range(0, 4)]
+    numbers_0_100_step_10 = [i * 10 for i in range(0, 11)]
+    numbers_0_100_step_20 = [i * 20 for i in range(0, 6)]
     enabled_disabled = ['Enabled', 'Disabled']
+    channels = ['Both', 'Left', 'Right']
+    decoder_modes = ['Normal', 'Full', 'Night']
 
     parser = argparse.ArgumentParser(description='SoundBlaster X G6 CLI')
     #
     # Base options
     #
-    # -- toggle-output
     parser.add_argument('--toggle-output', required=False, action='store_true',
                         help='Toggles the sound output between Speakers and Headphones')
-    # --set-output
     parser.add_argument('--set-output', required=False, type=str,
-                        choices=[TOGGLE_STATE_SPEAKERS, TOGGLE_STATE_HEADPHONES])
-    # --dry-run
+                        choices=[TOGGLE_STATE_SPEAKERS, TOGGLE_STATE_HEADPHONES],
+                        help='Set the sound output to: [\'Speakers\', \'Headphones\'].')
     parser.add_argument('--dry-run', required=False, action='store_true',
                         help='Used to verify the available hex_line files, without making '
-                             'any calls against the G6 device.')
+                             'any calls against the G6 device: [\'True\', \'False\'].')
+
     #
-    # Sound Effects
+    # Device / services
     #
-    # --set-surround
-    parser.add_argument('--set-surround', required=False, type=str, choices=enabled_disabled,
+    parser.add_argument('--reload-audio-services', required=False, action='store_true',
+                        help='Reload ALSA and restart user PipeWire services.')
+    parser.add_argument('--reload-audio-services-no-sudo', required=False, action='store_true',
+                        help='Reload audio services, but do not use sudo for ALSA reload.')
+
+    #
+    # Playback
+    #
+    parser.add_argument('--playback-mute', required=False, type=str, choices=enabled_disabled,
+                        help='Mute/unmute playback: [\'Enabled\', \'Disabled\']')
+    parser.add_argument('--playback-volume', required=False, type=int, choices=numbers_0_100,
+                        help='Set playback volume as integer: [0 .. 100].')
+    parser.add_argument('--playback-volume-channels', required=False, type=str, choices=channels, default='Both',
+                        help='Set playback volume channels for --playback-volume: [\'Both\', \'Left\', \'Right\'].')
+    parser.add_argument('--playback-direct-mode', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable Direct Mode: [\'Enabled\', \'Disabled\']')
+    parser.add_argument('--playback-spdif-out-direct-mode', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable SPDIF-Out Direct Mode: [\'Enabled\', \'Disabled\']')
+    parser.add_argument('--playback-filter', required=False, type=str,
+                        choices=[e.name for e in PlaybackFilter],
+                        help='Set playback filter by enum name: [\'FAST_ROLL_OFF_MINIMUM_PHASE\', \'SLOW_ROLL_OFF_MINIMUM_PHASE\', \'FAST_ROLL_OFF_LINEAR_PHASE\', \'SLOW_ROLL_OFF_LINEAR_PHASE\'')
+
+    #
+    # Decoder
+    #
+    parser.add_argument('--decoder-mode', required=False, type=str,
+                        choices=decoder_modes,
+                        help='Set decoder mode: [\'Normal\', \'Full\', \'Night\']')
+
+    #
+    # Lighting
+    #
+    parser.add_argument('--lighting-disable', required=False, action='store_true',
+                        help='Disable device lighting.')
+    parser.add_argument('--lighting-rgb', required=False, type=int, nargs=3, metavar=('R', 'G', 'B'),
+                        help='Enable lighting and set RGB: R G B each [0 .. 255].')
+
+    #
+    # Mixer
+    #
+    parser.add_argument('--mixer-playback-mute', required=False, type=str, choices=enabled_disabled,
+                        help='Mute/unmute mixer playback: [\'Enabled\', \'Disabled\']')
+
+    parser.add_argument('--mixer-monitoring-line-in-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-monitoring-line-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-line-in-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-monitoring-line-in-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-monitoring-external-mic-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-monitoring-external-mic-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-external-mic-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-monitoring-external-mic-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-monitoring-spdif-in-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-monitoring-spdif-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-spdif-in-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-monitoring-spdif-in-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-recording-line-in-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-recording-line-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-line-in-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-recording-line-in-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-recording-external-mic-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-recording-external-mic-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-external-mic-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-recording-external-mic-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-recording-spdif-in-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-recording-spdif-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-spdif-in-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-recording-spdif-in-volume [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--mixer-recording-what-u-hear-mute', required=False, type=str, choices=enabled_disabled)
+    parser.add_argument('--mixer-recording-what-u-hear-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-what-u-hear-volume-channels', required=False, type=str,
+                        choices=channels, default='Both',
+                        help='Define channels for --mixer-recording-what-u-hear-volume [\'Both\', \'Left\', \'Right\'].')
+
+    #
+    # Recording
+    #
+    parser.add_argument('--recording-mute', required=False, type=str, choices=enabled_disabled,
+                        help='Mute/unmute recording: [\'Enabled\', \'Disabled\']')
+    parser.add_argument('--recording-mic-recording-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set mic recording volume as integer: [0, 10, 20 .. 100].')
+    parser.add_argument('--recording-mic-recording-volume-channels', required=False, type=str, choices=channels,
+                        default='Both',
+                        help='Define channels --recording-mic-recording-volume: [\'Both\', \'Left\', \'Right\'].')
+    parser.add_argument('--recording-mic-boost-db', required=False, type=int, choices=numbers_0_30_step_10,
+                        help='Set mic boost in dB as integer: [0, 10, 20, 30].')
+
+    parser.add_argument('--recording-mic-monitoring-mute', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable mic monitoring: [\'Enabled\', \'Disabled\'].')
+    parser.add_argument('--recording-mic-monitoring-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set mic monitoring volume as integer: [0, 10, 20 .. 100].')
+    parser.add_argument('--recording-mic-monitoring-volume-channels', required=False, type=str, choices=channels,
+                        default='Both',
+                        help='Define channels for --recording-mic-monitoring-volume: [\'Both\', \'Left\', \'Right\'].')
+
+    parser.add_argument('--recording-voice-clarity', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable voice clarity: [\'Enabled\', \'Disabled\'].')
+    parser.add_argument('--recording-voice-clarity-noise-reduction', required=False, type=int,
+                        choices=numbers_0_100_step_20, help='Set noise reduction level as integer: [0, 20, 40 .. 100].')
+    parser.add_argument('--recording-voice-clarity-aec', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable acoustic echo cancellation (AEC): [\'Enabled\', \'Disabled\'].')
+    parser.add_argument('--recording-voice-clarity-smart-volume', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable smart volume: [\'Enabled\', \'Disabled\'].')
+    parser.add_argument('--recording-voice-clarity-mic-eq', required=False, type=str, choices=enabled_disabled,
+                        help='Enable/disable mic equalizer: [\'Enabled\', \'Disabled\'].')
+    parser.add_argument('--recording-voice-clarity-mic-eq-preset', required=False, type=str,
+                        choices=[e.name for e in MicrophoneEqualizerPreset],
+                        help='Set mic equalizer preset by enum name: [\'PRESET_1\', \'PRESET_2\', \'PRESET_3\','
+                             ' \'PRESET_4\', \'PRESET_5\', \'PRESET_6\', \'PRESET_7\', \'PRESET_8\', \'PRESET_9\','
+                             ' \'PRESET_10\', \'PRESET_DM_1\'].')
+
+    #
+    # Sound Effects (SBX)
+    #
+    parser.add_argument('--sbx-surround', required=False, type=str, choices=enabled_disabled,
                         help='Enables or disables the Surround sound effect: [\'Enabled\', \'Disabled\']')
-    parser.add_argument('--set-surround-value', required=False, type=int, choices=numbers,
+    parser.add_argument('--sbx-surround-value', required=False, type=int, choices=numbers_0_100,
                         help='Set the value for the Surround sound effect as integer: [0 .. 100].')
-    # --set-crystalizer
-    parser.add_argument('--set-crystalizer', required=False, type=str, choices=enabled_disabled,
+
+    parser.add_argument('--sbx-crystalizer', required=False, type=str, choices=enabled_disabled,
                         help='Enables or disables the Crystalizer sound effect: [\'Enabled\', \'Disabled\']')
-    parser.add_argument('--set-crystalizer-value', required=False, type=int, choices=numbers,
+    parser.add_argument('--sbx-crystalizer-value', required=False, type=int, choices=numbers_0_100,
                         help='Set the value for the Crystalizer sound effect as integer: [0 .. 100].')
-    # --set-bass
-    parser.add_argument('--set-bass', required=False, type=str, choices=enabled_disabled,
+
+    parser.add_argument('--sbx-bass', required=False, type=str, choices=enabled_disabled,
                         help='Enables or disables the Bass sound effect: [\'Enabled\', \'Disabled\']')
-    parser.add_argument('--set-bass-value', required=False, type=int, choices=numbers,
+    parser.add_argument('--set-bass-value', required=False, type=int, choices=numbers_0_100,
                         help='Set the value for the Bass sound effect as integer: [0 .. 100].')
-    # --set-smart-volume
-    parser.add_argument('--set-smart-volume', required=False, type=str, choices=enabled_disabled,
+
+    parser.add_argument('--sbx-smart-volume', required=False, type=str, choices=enabled_disabled,
                         help='Enables or disables the Smart-Volume sound effect: [\'Enabled\', \'Disabled\']')
-    parser.add_argument('--set-smart-volume-value', required=False, type=int, choices=numbers,
+    parser.add_argument('--sbx-smart-volume-value', required=False, type=int, choices=numbers_0_100,
                         help='Set the value for the Smart-Volume sound effect as value: [0 .. 100].')
-    parser.add_argument('--set-smart-volume-special-value', required=False, type=str, choices=['Night', 'Loud'],
+    parser.add_argument('--sbx-smart-volume-special-value', required=False, type=str, choices=['Night', 'Loud'],
                         help='Set the value for the Smart-Volume sound effect as string: \'Night\', \'Loud\'. '
                              'Supersedes the value from \'--set-smart-volume-value\'!')
-    # --set-dialog-plus
-    parser.add_argument('--set-dialog-plus', required=False, type=str, choices=enabled_disabled,
+
+    parser.add_argument('--sbx-dialog-plus', required=False, type=str, choices=enabled_disabled,
                         help='Enables or disables the Dialog-Plus sound effect: [\'Enabled\', \'Disabled\']')
-    parser.add_argument('--set-dialog-plus-value', required=False, type=int, choices=numbers,
+    parser.add_argument('--sbx-dialog-plus-value', required=False, type=int, choices=numbers_0_100,
                         help='Set the value for the Dialog-Plus sound effect as integer: : [0 .. 100].')
 
     # parse args and verify
     args = parser.parse_args()
     if args.toggle_output is False \
             and args.set_output is None \
-            and args.set_surround is None \
-            and args.set_surround_value is None \
-            and args.set_crystalizer is None \
-            and args.set_crystalizer_value is None \
-            and args.set_bass is None \
+            and args.reload_audio_services is False \
+            and args.playback_mute is None \
+            and args.playback_volume is None \
+            and args.playback_direct_mode is None \
+            and args.playback_spdif_out_direct_mode is None \
+            and args.playback_filter is None \
+            and args.decoder_mode is None \
+            and args.lighting_disable is False \
+            and args.lighting_rgb is None \
+            and args.mixer_playback_mute is None \
+            and args.mixer_monitoring_line_in_mute is None \
+            and args.mixer_monitoring_line_in_volume is None \
+            and args.mixer_monitoring_external_mic_mute is None \
+            and args.mixer_monitoring_external_mic_volume is None \
+            and args.mixer_monitoring_spdif_in_mute is None \
+            and args.mixer_monitoring_spdif_in_volume is None \
+            and args.mixer_recording_line_in_mute is None \
+            and args.mixer_recording_line_in_volume is None \
+            and args.mixer_recording_external_mic_mute is None \
+            and args.mixer_recording_external_mic_volume is None \
+            and args.mixer_recording_spdif_in_mute is None \
+            and args.mixer_recording_spdif_in_volume is None \
+            and args.mixer_recording_what_u_hear_mute is None \
+            and args.mixer_recording_what_u_hear_volume is None \
+            and args.recording_mute is None \
+            and args.recording_mic_recording_volume is None \
+            and args.recording_mic_boost_db is None \
+            and args.recording_mic_monitoring_mute is None \
+            and args.recording_mic_monitoring_volume is None \
+            and args.recording_voice_clarity is None \
+            and args.recording_voice_clarity_noise_reduction is None \
+            and args.recording_voice_clarity_aec is None \
+            and args.recording_voice_clarity_smart_volume is None \
+            and args.recording_voice_clarity_mic_eq is None \
+            and args.recording_voice_clarity_mic_eq_preset is None \
+            and args.sbx_surround is None \
+            and args.sbx_surround_value is None \
+            and args.sbx_crystalizer is None \
+            and args.sbx_crystalizer_value is None \
+            and args.sbx_bass is None \
             and args.set_bass_value is None \
-            and args.set_smart_volume is None \
-            and args.set_smart_volume_value is None \
-            and args.set_smart_volume_special_value is None \
-            and args.set_dialog_plus is None \
-            and args.set_dialog_plus_value is None:
+            and args.sbx_smart_volume is None \
+            and args.sbx_smart_volume_value is None \
+            and args.sbx_smart_volume_special_value is None \
+            and args.sbx_dialog_plus is None \
+            and args.sbx_dialog_plus_value is None:
         message = 'No meaningful argument has been specified!'
         print(message)
         parser.print_help()
@@ -175,47 +370,200 @@ def device_set_output(api: G6Api, toggle_state: str):
 
 def device_set_audio_effects(api: G6Api, args: argparse.Namespace):
     """
-    Sends all as CLI args given audio effects to the device.
+    Sends all as CLI args given audio settings to the device.
     :param api: The G6Api instance to use for communication with the device.
     :param args: The CLI arguments, recently parsed by argparse in parse_cli_args()
     """
+    #
+    # Device / services
+    #
+    if args.reload_audio_services:
+        use_sudo = not args.reload_audio_services_no_sudo
+        api.reload_alsa_and_pipewire(sudo=use_sudo)
+
+    #
+    # Playback
+    #
+    if args.playback_mute is not None:
+        # 'Enabled' means mute=True (same semantics as other toggles)
+        api.playback_mute(mute=to_bool(args.playback_mute))
+
+    if args.playback_volume is not None:
+        api.playback_volume(
+            volume_percent=args.playback_volume,
+            channels=_channels_from_cli(args.playback_volume_channels),
+        )
+
+    if args.playback_direct_mode is not None:
+        api.playback_enable_direct_mode(enable=to_bool(args.playback_direct_mode))
+
+    if args.playback_spdif_out_direct_mode is not None:
+        api.playback_enable_spdif_out_direct_mode(enable=to_bool(args.playback_spdif_out_direct_mode))
+
+    if args.playback_filter is not None:
+        api.playback_filter(playback_filter_enum=PlaybackFilter[args.playback_filter])
+
+    if args.decoder_mode is not None:
+        api.decoder_mode(decoder_mode_enum=_decoder_mode_from_cli(args.decoder_mode))
+
+    #
+    # Lighting
+    #
+    if args.lighting_disable:
+        api.lighting_disable()
+
+    if args.lighting_rgb is not None:
+        red, green, blue = args.lighting_rgb
+        api.lighting_enable_set_rgb(red=red, green=green, blue=blue)
+
+    #
+    # Mixer
+    #
+    if args.mixer_playback_mute is not None:
+        api.mixer_playback_mute(mute=to_bool(args.mixer_playback_mute))
+
+    if args.mixer_monitoring_line_in_mute is not None:
+        api.mixer_monitoring_line_in_mute(mute=to_bool(args.mixer_monitoring_line_in_mute))
+    if args.mixer_monitoring_line_in_volume is not None:
+        api.mixer_monitoring_line_in_volume(
+            volume_percent=args.mixer_monitoring_line_in_volume,
+            channels=_channels_from_cli(args.mixer_monitoring_line_in_volume_channels),
+        )
+
+    if args.mixer_monitoring_external_mic_mute is not None:
+        api.mixer_monitoring_external_mic_mute(mute=to_bool(args.mixer_monitoring_external_mic_mute))
+    if args.mixer_monitoring_external_mic_volume is not None:
+        api.mixer_monitoring_external_mic_volume(
+            volume_percent=args.mixer_monitoring_external_mic_volume,
+            channels=_channels_from_cli(args.mixer_monitoring_external_mic_volume_channels),
+        )
+
+    if args.mixer_monitoring_spdif_in_mute is not None:
+        api.mixer_monitoring_spdif_in_mute(mute=to_bool(args.mixer_monitoring_spdif_in_mute))
+    if args.mixer_monitoring_spdif_in_volume is not None:
+        api.mixer_monitoring_spdif_in_volume(
+            volume_percent=args.mixer_monitoring_spdif_in_volume,
+            channels=_channels_from_cli(args.mixer_monitoring_spdif_in_volume_channels),
+        )
+
+    if args.mixer_recording_line_in_mute is not None:
+        api.mixer_recording_line_in_mute(mute=to_bool(args.mixer_recording_line_in_mute))
+    if args.mixer_recording_line_in_volume is not None:
+        api.mixer_recording_line_in_volume(
+            volume_percent=args.mixer_recording_line_in_volume,
+            channels=_channels_from_cli(args.mixer_recording_line_in_volume_channels),
+        )
+
+    if args.mixer_recording_external_mic_mute is not None:
+        api.mixer_recording_external_mic_mute(mute=to_bool(args.mixer_recording_external_mic_mute))
+    if args.mixer_recording_external_mic_volume is not None:
+        api.mixer_recording_external_mic_volume(
+            volume_percent=args.mixer_recording_external_mic_volume,
+            channels=_channels_from_cli(args.mixer_recording_external_mic_volume_channels),
+        )
+
+    if args.mixer_recording_spdif_in_mute is not None:
+        api.mixer_recording_spdif_in_mute(mute=to_bool(args.mixer_recording_spdif_in_mute))
+    if args.mixer_recording_spdif_in_volume is not None:
+        api.mixer_recording_spdif_in_volume(
+            volume_percent=args.mixer_recording_spdif_in_volume,
+            channels=_channels_from_cli(args.mixer_recording_spdif_in_volume_channels),
+        )
+
+    if args.mixer_recording_what_u_hear_mute is not None:
+        api.mixer_recording_what_u_hear_mute(mute=to_bool(args.mixer_recording_what_u_hear_mute))
+    if args.mixer_recording_what_u_hear_volume is not None:
+        api.mixer_recording_what_u_hear_volume(
+            volume_percent=args.mixer_recording_what_u_hear_volume,
+            channels=_channels_from_cli(args.mixer_recording_what_u_hear_volume_channels),
+        )
+
+    #
+    # Recording
+    #
+    if args.recording_mute is not None:
+        api.recording_mute(mute=to_bool(args.recording_mute))
+
+    if args.recording_mic_recording_volume is not None:
+        api.recording_mic_recording_volume(
+            volume_percent=args.recording_mic_recording_volume,
+            channels=_channels_from_cli(args.recording_mic_recording_volume_channels),
+        )
+
+    if args.recording_mic_boost_db is not None:
+        api.recording_mic_boost(decibel=args.recording_mic_boost_db)
+
+    if args.recording_mic_monitoring_mute is not None:
+        api.recording_mic_monitoring_mute(mute=to_bool(args.recording_mic_monitoring_mute))
+
+    if args.recording_mic_monitoring_volume is not None:
+        api.recording_mic_monitoring_volume(
+            volume_percent=args.recording_mic_monitoring_volume,
+            channels=_channels_from_cli(args.recording_mic_monitoring_volume_channels),
+        )
+
+    if args.recording_voice_clarity is not None:
+        api.recording_voice_clarity_enabled(enable=to_bool(args.recording_voice_clarity))
+
+    if args.recording_voice_clarity_noise_reduction is not None:
+        api.recording_voice_clarity_noise_reduction_level(level_percent=args.recording_voice_clarity_noise_reduction)
+
+    if args.recording_voice_clarity_aec is not None:
+        api.recording_voice_clarity_acoustic_echo_cancellation_enabled(enable=to_bool(args.recording_voice_clarity_aec))
+
+    if args.recording_voice_clarity_smart_volume is not None:
+        api.recording_voice_clarity_smart_volume_enabled(enable=to_bool(args.recording_voice_clarity_smart_volume))
+
+    if args.recording_voice_clarity_mic_eq is not None:
+        api.recording_voice_clarity_mic_equalizer_enabled(enable=to_bool(args.recording_voice_clarity_mic_eq))
+
+    if args.recording_voice_clarity_mic_eq_preset is not None:
+        api.recording_voice_clarity_mic_equalizer_preset(
+            preset=MicrophoneEqualizerPreset[args.recording_voice_clarity_mic_eq_preset]
+        )
+
+    #
+    # SBX Effects
+    #
     # surround
-    if args.set_surround is not None:
-        api.sbx_toggle(AudioFeature.SURROUND_TOGGLE, to_bool(args.set_surround))
-    if args.set_surround_value is not None:
-        api.sbx_slider(AudioFeature.SURROUND_SLIDER, args.set_surround_value)
+    if args.sbx_surround is not None:
+        api.sbx_toggle(AudioFeature.SURROUND_TOGGLE, to_bool(args.sbx_surround))
+    if args.sbx_surround_value is not None:
+        api.sbx_slider(AudioFeature.SURROUND_SLIDER, args.sbx_surround_value)
 
     # crystalizer
-    if args.set_crystalizer is not None:
-        api.sbx_toggle(AudioFeature.CRYSTALIZER_TOGGLE, to_bool(args.set_surround))
-    if args.set_crystalizer_value is not None:
-        api.sbx_slider(AudioFeature.CRYSTALIZER_SLIDER, args.set_surround_value)
+    if args.sbx_crystalizer is not None:
+        api.sbx_toggle(AudioFeature.CRYSTALIZER_TOGGLE, to_bool(args.sbx_crystalizer))
+    if args.sbx_crystalizer_value is not None:
+        api.sbx_slider(AudioFeature.CRYSTALIZER_SLIDER, args.sbx_crystalizer_value)
 
     # bass
-    if args.set_bass is not None:
-        api.sbx_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.set_bass))
+    if args.sbx_bass is not None:
+        api.sbx_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.sbx_bass))
     if args.set_bass_value is not None:
         api.sbx_slider(AudioFeature.BASS_SLIDER, args.set_bass_value)
 
     # smart-volume
-    if args.set_smart_volume is not None:
-        api.sbx_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.set_smart_volume))
-    if args.set_smart_volume_value is not None:
-        api.sbx_slider(AudioFeature.SMART_VOLUME_SLIDER, args.set_smart_volume_value)
-    if args.set_smart_volume_special_value is not None:
-        if args.set_smart_volume_special_value == 'Night':
+    if args.sbx_smart_volume is not None:
+        api.sbx_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.sbx_smart_volume))
+    if args.sbx_smart_volume_value is not None:
+        api.sbx_slider(AudioFeature.SMART_VOLUME_SLIDER, args.sbx_smart_volume_value)
+    if args.sbx_smart_volume_special_value is not None:
+        if args.sbx_smart_volume_special_value == 'Night':
             api.sbx_smart_volume_special(SmartVolumeSpecialHex.SMART_VOLUME_NIGHT)
-        elif args.set_smart_volume_special_value == 'Loud':
+        elif args.sbx_smart_volume_special_value == 'Loud':
             api.sbx_smart_volume_special(SmartVolumeSpecialHex.SMART_VOLUME_LOUD)
         else:
-            raise ValueError(f'Expected one of the following values for --smart-volume-special-value: '
-                             f'[\'Night\', \'Loud\'], but was \'{args.set_smart_volume_special_value}\'!')
+            raise ValueError(
+                f"Expected one of the following values for --sbx-smart-volume-special-value: "
+                f"['Night', 'Loud'], but was '{args.sbx_smart_volume_special_value}'!"
+            )
 
     # dialog-plus
-    if args.set_dialog_plus is not None:
-        api.sbx_toggle(AudioFeature.DIALOG_PLUS_TOGGLE, to_bool(args.set_dialog_plus))
-    if args.set_dialog_plus_value is not None:
-        api.sbx_slider(AudioFeature.DIALOG_PLUS_SLIDER, args.set_dialog_plus_value)
+    if args.sbx_dialog_plus is not None:
+        api.sbx_toggle(AudioFeature.DIALOG_PLUS_TOGGLE, to_bool(args.sbx_dialog_plus))
+    if args.sbx_dialog_plus_value is not None:
+        api.sbx_slider(AudioFeature.DIALOG_PLUS_SLIDER, args.sbx_dialog_plus_value)
 
 
 def main():
@@ -228,5 +576,5 @@ def main():
     elif args.set_output is not None:
         device_set_output(api=api, toggle_state=args.set_output)
 
-    # handle audio effects
+    # handle audio effects and other settings
     device_set_audio_effects(api=api, args=args)
