@@ -2,78 +2,48 @@
 
 This project makes use of the [hidapi](https://github.com/trezor/cython-hidapi) library and thus transitively from
 [libusb](https://github.com/libusb/libusb) to provide a CLI to control
-the [SoundBlaster X G6](https://de.creative.com/p/sound-blaster/sound-blasterx-g6) device from command line. This empowers the people to control the G6 in Linux.
+the [SoundBlaster X G6](https://de.creative.com/p/sound-blaster/sound-blasterx-g6) device from command line. This
+empowers the people to control the G6 in Linux.
 
 ## Important Disclaimer
 
-I developed this CLI to the best of my belief and I use it myself to control my G6, and it works fine for me.
-I read pretty often, that you are able to damage or brick a USB device, if you send faulty data to it.
+I developed this CLI to the best of my belief, and I use it myself to control my G6, and it works fine for me.
+I read pretty often that you are able to damage or brick a USB device if you send faulty data to it.
 
-That's why I want point out, that you **USE THIS CLI AT YOUR OWN RISK**! I am not responsible for any damages on your
+That's why I want to point out, that you **USE THIS CLI AT YOUR OWN RISK**! I am not responsible for any damage to your
 system or your device!
 
 ## Firmware version
 
-This software is tested with a G6 having the **Firmware version:** `2.1.201208.1030`.
+This software is tested with a G6 having the **Firmware version:** `2.1.250903.1324`.
 
-Make sure, that you have the same version, since I do not know whether the USB specification may differ between the 
-versions. You are able to update your Firmware with 
+Make sure that you have the same version, since I do not know whether the USB specification may differ between the
+versions. You are able to update your Firmware with
 [SoundBlaster Command](https://support.creative.com/Products/ProductDetails.aspx?prodID=21383&prodName=Sound%20Blaster)
- in Windows by using a [QEMU/KVM VM](https://virt-manager.org/) and the USB Redirection feature.
+in Windows by using a [QEMU/KVM VM](https://virt-manager.org/) and the USB Redirection feature.
 
-## Installation
-
-Select a directory of your choice and clone the repository into it:
-
-```shell
-cd $HOME
-git clone <repository-url>
-```
-
-Install Python3. The application has been tested with **Python3.10** (LinuxMint 21.3) and **Python3.12** (Windows 10):
-
-```shell
-sudo apt-get install Python3.10
-```
-
-This should create the directory `~/soundblaster-x-g6-cli`, containing all files.
-
-The directory `~/soundblaster-x-g6-cli/shell` contains ready to use shell scripts to toggle or set the device output
-of the SoundBlaster X G6. Just set the required file permissions and you should be good to go:
-
-```shell
-sudo chmod 0544 /home/<your-username>/soundblaster-x-g6-cli/shell/*
-```
-
-Create a virtual environment and download the dependencies using pip:
-
-```shell
-# create virtual environment 'venv'
-cd /home/<your-username>/soundblaster-x-g6-cli/
-python -m venv venv
-
-# install virtualenv package (if required) and activate 'venv'
-pip install virtualenv
-virtualenv venv
-source venv/bin/activate
-
-# install dependencies into 'venv'
-pip install -r requirements.txt
-```
+## System requirements
 
 ### Linux: Create udev-rule
 
 In `/etc/udev/rules.d/` create a rule file as root (e.q. with name `50-soundblaster-x-g6.rules`) having the
 following content:
 
-```
+```text
 SUBSYSTEM=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="3256", TAG+="uaccess"
 ```
 
-This allows you (and the application) to access the USB device directly and is mandatory for the application to being 
+```shell
+sudo cat > /etc/udev/rules.d/50-soundblaster-x-g6.rules << EOF
+SUBSYSTEM=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="3256", TAG+="uaccess"
+EOF
+```
+
+This allows you (and the application) to access the USB device directly and is mandatory for the application to be  
 able to send data to the device.
 
 Apply the udev rules by issuing:
+
 ```shell
 # Reload udev rules:
 sudo udevadm trigger
@@ -88,89 +58,395 @@ libusb-1.0-0-dev/jammy-updates,now 2:1.0.25-1ubuntu2 amd64 [installed]
 libusb-1.0-0/jammy-updates,now 2:1.0.25-1ubuntu2 amd64 [installed]
 ```
 
+```shell
+sudo apt-get -y install libusb-1.0-0-dev libusb-1.0-0 
+```
+
 ### Windows: Add libusb-1.0.dll to %PATH%
 
-Download the package [libusb](https://pypi.org/project/libusb/#files) from Pypi (version `1.0.27`) and add the 
+Download the package [libusb](https://pypi.org/project/libusb/#files) from Pypi (version `1.0.27`) and add the
 following DLL file to your `%PATH%` variable:
 `/libusb-1.0.27/src/libusb/_platform/_windows/x64/libusb-1.0.dll`
 
 This is required to let the application use libusb in the backend.
 
+## Installation
+
+### Via pipx package (recommended)
+
+To install the CLI tool using `pipx`, run:
+
+```shell
+pipx install soundblaster-x-g6-cli
+```
+
+The soundblaster-x-g6-cli package is installed in `~/.local/share/pipx/venvs/soundblaster-x-g6-cli/`.
+
+The command `soundblaster-x-g6-cli` should now be available in your shell, otherwise you may have to add the
+directory `~/.local/share/pipx/venvs/soundblaster-x-g6-cli/bin/` to your `$PATH` variable.
+
+### Manual installation (from source)
+
+This section describes how to use the program from source. It contains the following steps:
+
+- clone the repository
+- install Python 3.12
+- make the prebuilt shell scripts executable
+- create a venv and download dependencies using pip
+
+#### Clone repository:
+
+Select a directory of your choice and clone the repository into it:
+
+```shell
+(cd $HOME; git clone git@github.com:nils-skowasch/soundblaster-x-g6-cli.git)
+```
+
+This should create the directory `~/soundblaster-x-g6-cli`, containing all files.
+
+#### Install Python 3.12:
+
+Install Python3.12. The application has been tested with **Python3.12** (LinuxMint 22.1).
+
+```shell
+sudo apt-get install Python3.12
+```
+
+#### Make shell scripts executable:
+
+The directory `~/soundblaster-x-g6-cli/shell` contains ready to use shell scripts to toggle or set the device output
+of the SoundBlaster X G6. Set the required file permissions and you should be good to go:
+
+```shell
+chmod 0544 ~/soundblaster-x-g6-cli/shell/*
+```
+
+#### Create a virtual environment and download dependencies
+
+Create a virtual environment and download the dependencies using pip:
+
+```shell
+# create virtual environment 'venv'
+cd ~/soundblaster-x-g6-cli/
+python -m venv venv
+
+# install virtualenv package (if required) and activate 'venv'
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+
+# install dependencies into 'venv'
+pip install -r requirements.txt
+```
+
 ### Conclusion
 
-The shell scripts in `/home/<your-username>/soundblaster-x-g6-cli/shell/` should now be usable and the installation 
+The shell scripts in `/home/<your-username>/soundblaster-x-g6-cli/shell/` should now be usable and the installation
 is complete.
 
 ## CLI usage
 
 ```shell
-usage: g6_cli.py [-h] [--toggle-output] [--set-output {Speakers,Headphones}]
-                 [--dry-run] [--set-surround {Enabled,Disabled}]
-                 [--set-surround-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}]
-                 [--set-crystalizer {Enabled,Disabled}]
-                 [--set-crystalizer-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}]
-                 [--set-bass {Enabled,Disabled}]
-                 [--set-bass-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}]
-                 [--set-smart-volume {Enabled,Disabled}]
-                 [--set-smart-volume-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}]
-                 [--set-smart-volume-special-value {Night,Loud}]
-                 [--set-dialog-plus {Enabled,Disabled}]
-                 [--set-dialog-plus-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}]
+usage: g6_cli.py [-h] [--toggle-output] [--set-output {Speakers|Headphones}]
+                 [--dry-run] [--reload-audio-services]
+                 [--reload-audio-services-no-sudo]
+                 [--playback-mute {Enabled|Disabled}]
+                 [--playback-volume {0..100}]
+                 [--playback-volume-channels {Both|Left|Right}]
+                 [--playback-direct-mode {Enabled|Disabled}]
+                 [--playback-spdif-out-direct-mode {Enabled|Disabled}]
+                 [--playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}]
+                 [--decoder-mode {Normal|Full|Night}] [--lighting-disable]
+                 [--lighting-rgb {0..255} {0..255} {0..255}]
+                 [--mixer-playback-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-line-in-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-line-in-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-line-in-volume-channels {Both|Left|Right}]
+                 [--mixer-monitoring-external-mic-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-external-mic-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-external-mic-volume-channels {Both|Left|Right}]
+                 [--mixer-monitoring-spdif-in-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-spdif-in-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-line-in-mute {Enabled|Disabled}]
+                 [--mixer-recording-line-in-volume {0|10|20|..|100}]
+                 [--mixer-recording-line-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-external-mic-mute {Enabled|Disabled}]
+                 [--mixer-recording-external-mic-volume {0|10|20|..|100}]
+                 [--mixer-recording-external-mic-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-spdif-in-mute {Enabled|Disabled}]
+                 [--mixer-recording-spdif-in-volume {0|10|20|..|100}]
+                 [--mixer-recording-spdif-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-what-u-hear-mute {Enabled|Disabled}]
+                 [--mixer-recording-what-u-hear-volume {0|10|20|..|100}]
+                 [--mixer-recording-what-u-hear-volume-channels {Both|Left|Right}]
+                 [--recording-mute {Enabled|Disabled}]
+                 [--recording-mic-recording-volume {0|10|20|..|100}]
+                 [--recording-mic-recording-volume-channels {Both|Left|Right}]
+                 [--recording-mic-boost-db {0|10|20|30}]
+                 [--recording-mic-monitoring-mute {Enabled|Disabled}]
+                 [--recording-mic-monitoring-volume {0|10|20|..|100}]
+                 [--recording-mic-monitoring-volume-channels {Both|Left|Right}]
+                 [--recording-voice-clarity {Enabled|Disabled}]
+                 [--recording-voice-clarity-noise-reduction {0|20|40|..|100}]
+                 [--recording-voice-clarity-aec {Enabled|Disabled}]
+                 [--recording-voice-clarity-smart-volume {Enabled|Disabled}]
+                 [--recording-voice-clarity-mic-eq {Enabled|Disabled}]
+                 [--recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}]
+                 [--sbx-surround {Enabled|Disabled}]
+                 [--sbx-surround-value {0..100}]
+                 [--sbx-crystalizer {Enabled|Disabled}]
+                 [--sbx-crystalizer-value {0..100}]
+                 [--sbx-bass {Enabled|Disabled}] [--set-bass-value {0..100}]
+                 [--sbx-smart-volume {Enabled|Disabled}]
+                 [--sbx-smart-volume-value {0..100}]
+                 [--sbx-smart-volume-special-value {Night|Loud}]
+                 [--sbx-dialog-plus {Enabled|Disabled}]
+                 [--sbx-dialog-plus-value {0..100}]
 
 SoundBlaster X G6 CLI
 
 options:
   -h, --help            show this help message and exit
-  --toggle-output       Toggles the sound output between Speakers and
-                        Headphones
-  --set-output {Speakers,Headphones}
-  --dry-run             Used to verify the available hex_line files, without
-                        making any calls against the G6 device.
-  --set-surround {Enabled,Disabled}
-                        Enables or disables the Surround sound effect:
-                        ['Enabled', 'Disabled']
-  --set-surround-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}
-                        Set the value for the Surround sound effect as
-                        integer: [0 .. 100].
-  --set-crystalizer {Enabled,Disabled}
-                        Enables or disables the Crystalizer sound effect:
-                        ['Enabled', 'Disabled']
-  --set-crystalizer-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}
-                        Set the value for the Crystalizer sound effect as
-                        integer: [0 .. 100].
-  --set-bass {Enabled,Disabled}
-                        Enables or disables the Bass sound effect: ['Enabled',
-                        'Disabled']
-  --set-bass-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}
-                        Set the value for the Bass sound effect as integer: [0
-                        .. 100].
-  --set-smart-volume {Enabled,Disabled}
-                        Enables or disables the Smart-Volume sound effect:
-                        ['Enabled', 'Disabled']
-  --set-smart-volume-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}
-                        Set the value for the Smart-Volume sound effect as
-                        value: [0 .. 100].
-  --set-smart-volume-special-value {Night,Loud}
-                        Set the value for the Smart-Volume sound effect as
-                        string: 'Night', 'Loud'. Supersedes the value from '--
-                        set-smart-volume-value'!
-  --set-dialog-plus {Enabled,Disabled}
-                        Enables or disables the Dialog-Plus sound effect:
-                        ['Enabled', 'Disabled']
-  --set-dialog-plus-value {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100}
-                        Set the value for the Dialog-Plus sound effect as
-                        integer: : [0 .. 100].
+  --toggle-output       Toggles the sound output between Speakers and Headphones.
+  --set-output {Speakers|Headphones}
+                        Sets the sound output to the specified option.
+  --dry-run             Used to verify the available hex_line files, without making any calls against the G6 device.
+  --reload-audio-services
+                        Reload ALSA and restart user PipeWire services.
+  --reload-audio-services-no-sudo
+                        Reload audio services, but do not use sudo for ALSA reload.
+  --playback-mute {Enabled|Disabled}
+                        Mute/unmute playback.
+  --playback-volume {0..100}
+                        Set playback volume as integer.
+  --playback-volume-channels {Both|Left|Right}
+                        Set playback volume channels for --playback-volume.
+  --playback-direct-mode {Enabled|Disabled}
+                        Enable/disable Direct Mode.
+  --playback-spdif-out-direct-mode {Enabled|Disabled}
+                        Enable/disable SPDIF-Out Direct Mode.
+  --playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}
+                        Set playback filter by enum name.
+  --decoder-mode {Normal|Full|Night}
+                        Set decoder mode.
+  --lighting-disable    Disable device lighting.
+  --lighting-rgb {0..255} {0..255} {0..255}
+                        Enable lighting and set RGB.
+  --mixer-playback-mute {Enabled|Disabled}
+                        Mute/unmute mixer playback.
+  --mixer-monitoring-line-in-mute {Enabled|Disabled}
+                        Mute/unmute line-in monitoring.
+  --mixer-monitoring-line-in-volume {0|10|20|..|100}
+                        Set line-in monitoring volume as integer.
+  --mixer-monitoring-line-in-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-monitoring-line-in-volume.
+  --mixer-monitoring-external-mic-mute {Enabled|Disabled}
+                        Mute/unmute external mic monitoring.
+  --mixer-monitoring-external-mic-volume {0|10|20|..|100}
+                        Set external mic monitoring volume as integer.
+  --mixer-monitoring-external-mic-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-monitoring-external-mic-volume.
+  --mixer-monitoring-spdif-in-mute {Enabled|Disabled}
+                        Mute/unmute spdif-in monitoring.
+  --mixer-monitoring-spdif-in-volume {0|10|20|..|100}
+                        Set spdif-in monitoring volume as integer.
+  --mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-monitoring-spdif-in-volume.
+  --mixer-recording-line-in-mute {Enabled|Disabled}
+                        Mute/unmute line-in recording.
+  --mixer-recording-line-in-volume {0|10|20|..|100}
+                        Set line-in recording volume as integer.
+  --mixer-recording-line-in-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-recording-line-in-volume.
+  --mixer-recording-external-mic-mute {Enabled|Disabled}
+                        Mute/unmute external mic recording.
+  --mixer-recording-external-mic-volume {0|10|20|..|100}
+                        Set external mic recording volume as integer.
+  --mixer-recording-external-mic-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-recording-external-mic-volume.
+  --mixer-recording-spdif-in-mute {Enabled|Disabled}
+                        Mute/unmute spdif-in recording.
+  --mixer-recording-spdif-in-volume {0|10|20|..|100}
+                        Set spdif-in recording volume as integer.
+  --mixer-recording-spdif-in-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-recording-spdif-in-volume.
+  --mixer-recording-what-u-hear-mute {Enabled|Disabled}
+                        Mute/unmute what-u-hear recording.
+  --mixer-recording-what-u-hear-volume {0|10|20|..|100}
+                        Set what-u-hear recording volume as integer.
+  --mixer-recording-what-u-hear-volume-channels {Both|Left|Right}
+                        Define channels for --mixer-recording-what-u-hear-volume.
+  --recording-mute {Enabled|Disabled}
+                        Mute/unmute recording.
+  --recording-mic-recording-volume {0|10|20|..|100}
+                        Set mic recording volume as integer.
+  --recording-mic-recording-volume-channels {Both|Left|Right}
+                        Define channels --recording-mic-recording-volume.
+  --recording-mic-boost-db {0|10|20|30}
+                        Set mic boost in dB as integer.
+  --recording-mic-monitoring-mute {Enabled|Disabled}
+                        Enable/disable mic monitoring.
+  --recording-mic-monitoring-volume {0|10|20|..|100}
+                        Set mic monitoring volume as integer.
+  --recording-mic-monitoring-volume-channels {Both|Left|Right}
+                        Define channels for --recording-mic-monitoring-volume.
+  --recording-voice-clarity {Enabled|Disabled}
+                        Enable/disable voice clarity.
+  --recording-voice-clarity-noise-reduction {0|20|40|..|100}
+                        Set noise reduction level as integer.
+  --recording-voice-clarity-aec {Enabled|Disabled}
+                        Enable/disable acoustic echo cancellation (AEC).
+  --recording-voice-clarity-smart-volume {Enabled|Disabled}
+                        Enable/disable smart volume.
+  --recording-voice-clarity-mic-eq {Enabled|Disabled}
+                        Enable/disable mic equalizer.
+  --recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}
+                        Set mic equalizer preset by enum name.
+  --sbx-surround {Enabled|Disabled}
+                        Enables or disables the Surround sound effect.
+  --sbx-surround-value {0..100}
+                        Set the value for the Surround sound effect as integer.
+  --sbx-crystalizer {Enabled|Disabled}
+                        Enables or disables the Crystalizer sound effect.
+  --sbx-crystalizer-value {0..100}
+                        Set the value for the Crystalizer sound effect as integer.
+  --sbx-bass {Enabled|Disabled}
+                        Enables or disables the Bass sound effect.
+  --set-bass-value {0..100}
+                        Set the value for the Bass sound effect as integer.
+  --sbx-smart-volume {Enabled|Disabled}
+                        Enables or disables the Smart-Volume sound effect.
+  --sbx-smart-volume-value {0..100}
+                        Set the value for the Smart-Volume sound effect as value.
+  --sbx-smart-volume-special-value {Night|Loud}
+                        Set the value for the Smart-Volume sound effect as string (supersedes --set-smart-volume-value).
+  --sbx-dialog-plus {Enabled|Disabled}
+                        Enables or disables the Dialog-Plus sound effect.
+  --sbx-dialog-plus-value {0..100}
+                        Set the value for the Dialog-Plus sound effect as integer.
+
 ```
 
-# G6 USB specification
+## Development
 
-I reverse engineered the USB specification by recording the USB communication using 
-[Wireshark USBPCAP](https://wiki.wireshark.org/CaptureSetup/USB) and making conclusions of the HEX codes being 
-transmitted from 
-[SoundBlaster Command](https://support.creative.com/Products/ProductDetails.aspx?prodID=21383&prodName=Sound%20Blaster) 
-to the device:
+### Building the application
 
-See: [usb-spec.txt](./doc/usb-spec.txt)
+To build the application, run the following commands:
+
+```shell
+# builds the application into the dist/ directory
+python -m build
+
+# verifies the build
+python -m twine check dist/*
+```
+
+### Testing the application
+
+You can test the application with multiple python versions using pyenv and tox.
+
+#### Pyenv
+
+Use pyenv to manage multiple Python versions.
+
+##### Install pyenv
+
+```shell
+curl -fsSL https://pyenv.run | bash
+```
+
+##### Append pyenv to ~/.bashrc
+
+Append the following lines to `~/.bashrc` to make `pyenv` available in your shell.
+
+```shell
+cat >> ~/.bashrc << EOF
+#
+# pyenv:
+#
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - bash)"
+
+EOF
+```
+
+Restart the shell afterwards, or run`source ~/.bashrc`.
+
+##### Install required dependencies
+
+The following dependencies were required for LinuxMint 22.1:
+
+```shell
+sudo apt install libreadline-dev libssl-dev libsqlite3-dev
+```
+
+There may be other dependencies required for your Linux distribution. Maybe these commands help:
+
+```shell
+sudo apt update
+sudo apt install -y \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    curl \
+    git \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev
+```
+
+##### Test your pyenv setup
+
+Run the following command to verify your pyenv setup:
+
+```shell
+pyenv doctor
+```
+
+##### Install supported Python versions
+
+Install the supported python versions using pyenv:
+
+```shell
+# 3.12
+pyenv install 3.12.3
+
+# rehash pyenv shims (run this after installing executables)
+pyenv rehash
+```
+
+#### tox
+
+Test all python environments defined in pyproject.toml using tox.
+
+```shell
+tox
+```
+
+Test a single python environment using tox:
+
+```shell
+tox -e py312
+```
+
+# SoundBlaster X G6 USB specification
+
+I reverse-engineered the USB specification by recording the USB communication using
+[Wireshark USBPCAP](https://wiki.wireshark.org/CaptureSetup/USB) and making conclusions of the HEX codes being
+transmitted from
+[SoundBlaster Command](https://support.creative.com/Products/ProductDetails.aspx?prodID=21383&prodName=Sound%20Blaster)
+(Application version: `3.4.98.0`; Driver version: `1.16.4.26`) to the device.
+
+See: [usb-spec.md](./doc/usb-spec.md)
 
 # USB protocol
 

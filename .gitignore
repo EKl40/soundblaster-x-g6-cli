@@ -1,3 +1,5 @@
 .idea
 venv
 __pycache__
+dist
+soundblaster_x_g6_cli.egg-info
