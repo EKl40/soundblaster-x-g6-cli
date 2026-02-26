@@ -23,6 +23,7 @@ def around_session(api: g6_api.G6Api):
     api.reload_alsa_and_pipewire(sudo=True)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_playback_volume_0(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 0.
@@ -30,6 +31,7 @@ def test_playback_volume_0(api: g6_api.G6Api):
     api.playback_volume(0)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_playback_volume_50(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 50.
@@ -37,6 +39,7 @@ def test_playback_volume_50(api: g6_api.G6Api):
     api.playback_volume(10)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_playback_volume_100(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.
@@ -44,6 +47,7 @@ def test_playback_volume_100(api: g6_api.G6Api):
     api.playback_volume(100)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_toggle_to_speakers(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.
@@ -51,6 +55,7 @@ def test_toggle_to_speakers(api: g6_api.G6Api):
     api.playback_toggle_to_speakers()
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_toggle_to_headphones(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.
@@ -58,6 +63,7 @@ def test_toggle_to_headphones(api: g6_api.G6Api):
     api.playback_toggle_to_headphones()
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_rgb_red(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.
@@ -65,6 +71,7 @@ def test_rgb_red(api: g6_api.G6Api):
     api.lighting_enable_set_rgb(255, 0, 0)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_rgb_green(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.
@@ -72,6 +79,7 @@ def test_rgb_green(api: g6_api.G6Api):
     api.lighting_enable_set_rgb(0, 255, 0)
 
 
+@pytest.mark.skip(reason="Only run manually!")
 def test_rgb_blue(api: g6_api.G6Api):
     """
     Test that playback volume can be set to 100.

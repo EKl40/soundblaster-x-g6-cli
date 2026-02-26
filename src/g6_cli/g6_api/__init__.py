@@ -78,8 +78,7 @@ class G6Api:
     def release_audio_interface(self) -> None:
         self.__device.release_audio_interface()
 
-    @staticmethod
-    def reload_alsa_and_pipewire(sudo: bool = True) -> None:
+    def reload_alsa_and_pipewire(self, sudo: bool = True) -> None:
         """
         Reload ALSA (usually root) and restart user PipeWire services.
 
@@ -113,6 +112,11 @@ class G6Api:
                 check=True,
                 env=user_env,
             )
+
+        # check for dryrun mode
+        if self.__dry_run:
+            print("This is a dry run. ALSA and PipeWire will not be reloaded.")
+            return
 
         # --- ALSA reload (root) ---
         reload_alsa()

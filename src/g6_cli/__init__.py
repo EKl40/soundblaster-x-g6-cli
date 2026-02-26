@@ -120,43 +120,52 @@ def parse_cli_args():
                         help='Mute/unmute mixer playback: [\'Enabled\', \'Disabled\']')
 
     parser.add_argument('--mixer-monitoring-line-in-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-monitoring-line-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-line-in-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set line-in monitoring volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-monitoring-line-in-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-monitoring-line-in-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-monitoring-external-mic-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-monitoring-external-mic-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-external-mic-volume', required=False, type=int,
+                        choices=numbers_0_100_step_10,
+                        help='Set external mic monitoring volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-monitoring-external-mic-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-monitoring-external-mic-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-monitoring-spdif-in-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-monitoring-spdif-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-monitoring-spdif-in-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set spdif-in monitoring volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-monitoring-spdif-in-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-monitoring-spdif-in-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-recording-line-in-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-recording-line-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-line-in-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set line-in recording volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-recording-line-in-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-recording-line-in-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-recording-external-mic-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-recording-external-mic-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-external-mic-volume', required=False, type=int,
+                        choices=numbers_0_100_step_10,
+                        help='Set external mic recording volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-recording-external-mic-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-recording-external-mic-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-recording-spdif-in-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-recording-spdif-in-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-spdif-in-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set spdif-in recording volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-recording-spdif-in-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-recording-spdif-in-volume [\'Both\', \'Left\', \'Right\'].')
 
     parser.add_argument('--mixer-recording-what-u-hear-mute', required=False, type=str, choices=enabled_disabled)
-    parser.add_argument('--mixer-recording-what-u-hear-volume', required=False, type=int, choices=numbers_0_100)
+    parser.add_argument('--mixer-recording-what-u-hear-volume', required=False, type=int, choices=numbers_0_100_step_10,
+                        help='Set what-u-hear recording volume as integer: [0, 10, 20 .. 100].')
     parser.add_argument('--mixer-recording-what-u-hear-volume-channels', required=False, type=str,
                         choices=channels, default='Both',
                         help='Define channels for --mixer-recording-what-u-hear-volume [\'Both\', \'Left\', \'Right\'].')
