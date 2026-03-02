@@ -146,93 +146,85 @@ is complete.
 
 ## CLI usage
 
-```shell
-usage: g6_cli.py [-h] [--toggle-output] [--set-output {Speakers|Headphones}]
-                 [--dry-run] [--reload-audio-services]
-                 [--reload-audio-services-no-sudo]
-                 [--playback-mute {Enabled|Disabled}]
-                 [--playback-volume {0..100}]
-                 [--playback-volume-channels {Both|Left|Right}]
-                 [--playback-direct-mode {Enabled|Disabled}]
-                 [--playback-spdif-out-direct-mode {Enabled|Disabled}]
-                 [--playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}]
-                 [--decoder-mode {Normal|Full|Night}] [--lighting-disable]
-                 [--lighting-rgb {0..255} {0..255} {0..255}]
-                 [--mixer-playback-mute {Enabled|Disabled}]
-                 [--mixer-monitoring-line-in-mute {Enabled|Disabled}]
-                 [--mixer-monitoring-line-in-volume {0|10|20|..|100}]
-                 [--mixer-monitoring-line-in-volume-channels {Both|Left|Right}]
-                 [--mixer-monitoring-external-mic-mute {Enabled|Disabled}]
-                 [--mixer-monitoring-external-mic-volume {0|10|20|..|100}]
-                 [--mixer-monitoring-external-mic-volume-channels {Both|Left|Right}]
-                 [--mixer-monitoring-spdif-in-mute {Enabled|Disabled}]
-                 [--mixer-monitoring-spdif-in-volume {0|10|20|..|100}]
-                 [--mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}]
-                 [--mixer-recording-line-in-mute {Enabled|Disabled}]
-                 [--mixer-recording-line-in-volume {0|10|20|..|100}]
-                 [--mixer-recording-line-in-volume-channels {Both|Left|Right}]
-                 [--mixer-recording-external-mic-mute {Enabled|Disabled}]
-                 [--mixer-recording-external-mic-volume {0|10|20|..|100}]
-                 [--mixer-recording-external-mic-volume-channels {Both|Left|Right}]
-                 [--mixer-recording-spdif-in-mute {Enabled|Disabled}]
-                 [--mixer-recording-spdif-in-volume {0|10|20|..|100}]
-                 [--mixer-recording-spdif-in-volume-channels {Both|Left|Right}]
-                 [--mixer-recording-what-u-hear-mute {Enabled|Disabled}]
-                 [--mixer-recording-what-u-hear-volume {0|10|20|..|100}]
-                 [--mixer-recording-what-u-hear-volume-channels {Both|Left|Right}]
-                 [--recording-mute {Enabled|Disabled}]
-                 [--recording-mic-recording-volume {0|10|20|..|100}]
-                 [--recording-mic-recording-volume-channels {Both|Left|Right}]
-                 [--recording-mic-boost-db {0|10|20|30}]
-                 [--recording-mic-monitoring-mute {Enabled|Disabled}]
-                 [--recording-mic-monitoring-volume {0|10|20|..|100}]
-                 [--recording-mic-monitoring-volume-channels {Both|Left|Right}]
-                 [--recording-voice-clarity {Enabled|Disabled}]
-                 [--recording-voice-clarity-noise-reduction {0|20|40|..|100}]
-                 [--recording-voice-clarity-aec {Enabled|Disabled}]
-                 [--recording-voice-clarity-smart-volume {Enabled|Disabled}]
-                 [--recording-voice-clarity-mic-eq {Enabled|Disabled}]
-                 [--recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}]
-                 [--sbx-surround {Enabled|Disabled}]
-                 [--sbx-surround-value {0..100}]
-                 [--sbx-crystalizer {Enabled|Disabled}]
-                 [--sbx-crystalizer-value {0..100}]
-                 [--sbx-bass {Enabled|Disabled}] [--set-bass-value {0..100}]
-                 [--sbx-smart-volume {Enabled|Disabled}]
-                 [--sbx-smart-volume-value {0..100}]
-                 [--sbx-smart-volume-special-value {Night|Loud}]
-                 [--sbx-dialog-plus {Enabled|Disabled}]
-                 [--sbx-dialog-plus-value {0..100}]
+```text
+usage: g6_cli.py [-h] [--dry-run] [--claim-and-release] [--reload-audio-services] [--reload-audio-services-no-sudo] [--toggle-output] [--set-output {Speakers|Headphones}] [--playback-mute {Enabled|Disabled}] [--playback-volume {0..100}] [--playback-volume-channels {Both|Left|Right}] [--playback-speakers-to-stereo]
+                 [--playback-speakers-to-5-1] [--playback-speakers-to-7-1] [--playback-headphones-to-stereo] [--playback-headphones-to-5-1] [--playback-headphones-to-7-1] [--playback-direct-mode {Enabled|Disabled}] [--playback-spdif-out-direct-mode {Enabled|Disabled}]
+                 [--playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}] [--decoder-mode {Normal|Full|Night}] [--lighting-disable] [--lighting-rgb {0..255} {0..255} {0..255}] [--mixer-playback-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-line-in-mute {Enabled|Disabled}] [--mixer-monitoring-line-in-volume {0|10|20|..|100}] [--mixer-monitoring-line-in-volume-channels {Both|Left|Right}] [--mixer-monitoring-external-mic-mute {Enabled|Disabled}] [--mixer-monitoring-external-mic-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-external-mic-volume-channels {Both|Left|Right}] [--mixer-monitoring-spdif-in-mute {Enabled|Disabled}] [--mixer-monitoring-spdif-in-volume {0|10|20|..|100}] [--mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}] [--mixer-recording-line-in-mute {Enabled|Disabled}]
+                 [--mixer-recording-line-in-volume {0|10|20|..|100}] [--mixer-recording-line-in-volume-channels {Both|Left|Right}] [--mixer-recording-external-mic-mute {Enabled|Disabled}] [--mixer-recording-external-mic-volume {0|10|20|..|100}] [--mixer-recording-external-mic-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-spdif-in-mute {Enabled|Disabled}] [--mixer-recording-spdif-in-volume {0|10|20|..|100}] [--mixer-recording-spdif-in-volume-channels {Both|Left|Right}] [--mixer-recording-what-u-hear-mute {Enabled|Disabled}] [--mixer-recording-what-u-hear-volume {0|10|20|..|100}]
+                 [--mixer-recording-what-u-hear-volume-channels {Both|Left|Right}] [--recording-mute {Enabled|Disabled}] [--recording-mic-recording-volume {0|10|20|..|100}] [--recording-mic-recording-volume-channels {Both|Left|Right}] [--recording-mic-boost-db {0|10|20|30}]
+                 [--recording-mic-monitoring-mute {Enabled|Disabled}] [--recording-mic-monitoring-volume {0|10|20|..|100}] [--recording-mic-monitoring-volume-channels {Both|Left|Right}] [--recording-voice-clarity {Enabled|Disabled}] [--recording-voice-clarity-noise-reduction {0|20|40|..|100}]
+                 [--recording-voice-clarity-aec {Enabled|Disabled}] [--recording-voice-clarity-smart-volume {Enabled|Disabled}] [--recording-voice-clarity-mic-eq {Enabled|Disabled}]
+                 [--recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}] [--sbx-surround {Enabled|Disabled}] [--sbx-surround-value {0..100}] [--sbx-crystalizer {Enabled|Disabled}] [--sbx-crystalizer-value {0..100}]
+                 [--sbx-bass {Enabled|Disabled}] [--set-bass-value {0..100}] [--sbx-smart-volume {Enabled|Disabled}] [--sbx-smart-volume-value {0..100}] [--sbx-smart-volume-special-value {Night|Loud}] [--sbx-dialog-plus {Enabled|Disabled}] [--sbx-dialog-plus-value {0..100}]
 
 SoundBlaster X G6 CLI
 
 options:
   -h, --help            show this help message and exit
-  --toggle-output       Toggles the sound output between Speakers and Headphones.
-  --set-output {Speakers|Headphones}
-                        Sets the sound output to the specified option.
+
+General options:
   --dry-run             Used to verify the available hex_line files, without making any calls against the G6 device.
+  --claim-and-release   Let the application exclusively claim the G6's USB AudioControl interface from the kernel and release it afterwards. This will disconnect the G6 device from the kernel sound driver "snd-usb-audio" leading the system not having any audio output. Use `--reload-audio-services` to reload the
+                        kernel sound driver and make the audio output available again.
   --reload-audio-services
                         Reload ALSA and restart user PipeWire services.
   --reload-audio-services-no-sudo
                         Reload audio services, but do not use sudo for ALSA reload.
-  --playback-mute {Enabled|Disabled}
-                        Mute/unmute playback.
-  --playback-volume {0..100}
-                        Set playback volume as integer.
-  --playback-volume-channels {Both|Left|Right}
-                        Set playback volume channels for --playback-volume.
+
+Playback [HID]:
+  Control basic features using the G6's USB HID interface.
+
+  --toggle-output       Toggles the sound output between Speakers and Headphones.
+  --set-output {Speakers|Headphones}
+                        Sets the sound output to the specified option.
   --playback-direct-mode {Enabled|Disabled}
                         Enable/disable Direct Mode.
   --playback-spdif-out-direct-mode {Enabled|Disabled}
                         Enable/disable SPDIF-Out Direct Mode.
   --playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}
                         Set playback filter by enum name.
+
+Playback [Audio]:
+  Control advanced features using the G6's USB AudioControl interface. See `--claim-and-release` how to use these features.
+
+  --playback-mute {Enabled|Disabled}
+                        Mute/unmute playback.
+  --playback-volume {0..100}
+                        Set playback volume as integer.
+  --playback-volume-channels {Both|Left|Right}
+                        Set playback volume channels for --playback-volume.
+  --playback-speakers-to-stereo
+                        Switch speakers output to stereo.
+  --playback-speakers-to-5-1
+                        Switch speakers output to 5.1.
+  --playback-speakers-to-7-1
+                        Switch speakers output to 7.1.
+  --playback-headphones-to-stereo
+                        Switch headphones output to stereo.
+  --playback-headphones-to-5-1
+                        Switch headphones output to 5.1.
+  --playback-headphones-to-7-1
+                        Switch headphones output to 7.1.
+
+Decoder [HID]:
+  Control decoder features using the G6's USB HID interface.
+
   --decoder-mode {Normal|Full|Night}
                         Set decoder mode.
+
+Lighting [HID]:
+  Control lighting features using the G6's USB HID interface.
+
   --lighting-disable    Disable device lighting.
   --lighting-rgb {0..255} {0..255} {0..255}
                         Enable lighting and set RGB.
+
+Mixer [Audio]:
+  Control mixer features using the G6's USB AudioControl interface. See `--claim-and-release` how to use these features.
+
   --mixer-playback-mute {Enabled|Disabled}
                         Mute/unmute mixer playback.
   --mixer-monitoring-line-in-mute {Enabled|Disabled}
@@ -277,20 +269,12 @@ options:
                         Set what-u-hear recording volume as integer.
   --mixer-recording-what-u-hear-volume-channels {Both|Left|Right}
                         Define channels for --mixer-recording-what-u-hear-volume.
-  --recording-mute {Enabled|Disabled}
-                        Mute/unmute recording.
-  --recording-mic-recording-volume {0|10|20|..|100}
-                        Set mic recording volume as integer.
-  --recording-mic-recording-volume-channels {Both|Left|Right}
-                        Define channels --recording-mic-recording-volume.
+
+Recording [HID]:
+  Control recording features using the G6's USB HID interface.
+
   --recording-mic-boost-db {0|10|20|30}
                         Set mic boost in dB as integer.
-  --recording-mic-monitoring-mute {Enabled|Disabled}
-                        Enable/disable mic monitoring.
-  --recording-mic-monitoring-volume {0|10|20|..|100}
-                        Set mic monitoring volume as integer.
-  --recording-mic-monitoring-volume-channels {Both|Left|Right}
-                        Define channels for --recording-mic-monitoring-volume.
   --recording-voice-clarity {Enabled|Disabled}
                         Enable/disable voice clarity.
   --recording-voice-clarity-noise-reduction {0|20|40|..|100}
@@ -303,6 +287,26 @@ options:
                         Enable/disable mic equalizer.
   --recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}
                         Set mic equalizer preset by enum name.
+
+Recording [Audio]:
+  Control recording features using the G6's USB AudioControl interface. See `--claim-and-release` how to use these features.
+
+  --recording-mute {Enabled|Disabled}
+                        Mute/unmute recording.
+  --recording-mic-recording-volume {0|10|20|..|100}
+                        Set mic recording volume as integer.
+  --recording-mic-recording-volume-channels {Both|Left|Right}
+                        Define channels --recording-mic-recording-volume.
+  --recording-mic-monitoring-mute {Enabled|Disabled}
+                        Enable/disable mic monitoring.
+  --recording-mic-monitoring-volume {0|10|20|..|100}
+                        Set mic monitoring volume as integer.
+  --recording-mic-monitoring-volume-channels {Both|Left|Right}
+                        Define channels for --recording-mic-monitoring-volume.
+
+SBX [HID]:
+  Control SBX effects using the G6's USB HID interface.
+
   --sbx-surround {Enabled|Disabled}
                         Enables or disables the Surround sound effect.
   --sbx-surround-value {0..100}
@@ -325,7 +329,6 @@ options:
                         Enables or disables the Dialog-Plus sound effect.
   --sbx-dialog-plus-value {0..100}
                         Set the value for the Dialog-Plus sound effect as integer.
-
 ```
 
 ## Development
@@ -446,10 +449,10 @@ transmitted from
 [SoundBlaster Command](https://support.creative.com/Products/ProductDetails.aspx?prodID=21383&prodName=Sound%20Blaster)
 (Application version: `3.4.98.0`; Driver version: `1.16.4.26`) to the device.
 
-See: [usb-spec.md](./doc/usb-spec.md)
+See: [usb-spec.md](https://github.com/nils-skowasch/soundblaster-x-g6-cli/blob/main/doc/usb-spec.md)
 
 # USB protocol
 
 The following file contains some basic information about the USB protocol:
 
-See: [usb-protocol.md](./doc/usb-protocol.md)
+See: [usb-protocol.md](https://github.com/nils-skowasch/soundblaster-x-g6-cli/blob/main/doc/usb-protocol.md)

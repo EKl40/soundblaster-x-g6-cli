@@ -7,7 +7,7 @@ import pytest
 
 import g6_cli
 import g6_cli.g6_api as g6_api
-from g6_cli import main as cli_main, TOGGLE_STATE_SPEAKERS, TOGGLE_STATE_HEADPHONES
+from g6_cli import main as cli_main, TOGGLE_STATE_HEADPHONES
 from g6_cli.g6_core import G6Device
 from g6_cli.g6_spec import PlaybackFilter
 from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
@@ -45,6 +45,12 @@ CLI_CASES.append(("playback_volume", lambda: ["--playback-volume", "50"]))
 CLI_CASES.append(("playback_volume", lambda: ["--playback-volume", "100"]))
 CLI_CASES.append(("playback_volume", lambda: ["--playback-volume", "50", "--playback-volume-channels", "Left"]))
 CLI_CASES.append(("playback_volume", lambda: ["--playback-volume", "50", "--playback-volume-channels", "Right"]))
+CLI_CASES.append(("playback_speakers_to_stereo", lambda: ["--playback-speakers-to-stereo"]))
+CLI_CASES.append(("playback_speakers_to_5_1", lambda: ["--playback-speakers-to-5-1"]))
+CLI_CASES.append(("playback_speakers_to_7_1", lambda: ["--playback-speakers-to-7-1"]))
+CLI_CASES.append(("playback_headphones_to_stereo", lambda: ["--playback-headphones-to-stereo"]))
+CLI_CASES.append(("playback_headphones_to_5_1", lambda: ["--playback-headphones-to-5-1"]))
+CLI_CASES.append(("playback_headphones_to_7_1", lambda: ["--playback-headphones-to-7-1"]))
 CLI_CASES.append(("playback_enable_direct_mode", lambda: ["--playback-direct-mode", "Enabled"]))
 CLI_CASES.append(("playback_enable_direct_mode", lambda: ["--playback-direct-mode", "Disabled"]))
 CLI_CASES.append(("playback_enable_spdif_out_direct_mode", lambda: ["--playback-spdif-out-direct-mode", "Enabled"]))
@@ -182,6 +188,10 @@ def test_cli_args_call_g6api_methods(
 
     # Mock determine_toggle_state
     monkeypatch.setattr(g6_cli, 'determine_toggle_state', MagicMock(return_value=TOGGLE_STATE_HEADPHONES))
+
+    # Mock interface availability methods
+    monkeypatch.setattr(api, "is_hid_interface_available", MagicMock(return_value=True))
+    monkeypatch.setattr(api, "is_audio_interface_available", MagicMock(return_value=True))
 
     # Mock the target method on the api instance
     method_mock = MagicMock()
