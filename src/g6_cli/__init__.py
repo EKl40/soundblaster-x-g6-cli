@@ -67,6 +67,7 @@ def parse_cli_args():
     general_options_group = parser.add_argument_group('General options')
     general_options_group.add_argument('--dry-run', required=False, action='store_true',
                                        help='Used to verify the available hex_line files, without making any calls against the G6 device.')
+    general_options_group.add_argument('--debug', required=False, action='store_true', help='Print communication data with the G6 device to the console.')
 
     general_options_group.add_argument('--claim-and-release', required=False, action='store_true',
                                        help='Let the application exclusively claim the G6\'s USB AudioControl interface from the kernel and release it afterwards.'
@@ -728,7 +729,7 @@ def main():
     args = parse_cli_args()
 
     # look up the G6 device
-    api = G6Api(dry_run=args.dry_run)
+    api = G6Api(dry_run=args.dry_run, debug=args.debug)
 
     # process arguments and call the api
     device_set_audio_effects(api=api, args=args)

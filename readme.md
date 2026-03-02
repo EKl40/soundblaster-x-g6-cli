@@ -167,6 +167,7 @@ options:
 
 General options:
   --dry-run             Used to verify the available hex_line files, without making any calls against the G6 device.
+  --debug               Print communication data with the G6 device to the console.
   --claim-and-release   Let the application exclusively claim the G6's USB AudioControl interface from the kernel and release it afterwards. This will disconnect the G6 device from the kernel sound driver "snd-usb-audio" leading the system not having any audio output. Use `--reload-audio-services` to reload the
                         kernel sound driver and make the audio output available again.
   --reload-audio-services

@@ -150,11 +150,12 @@ class G6Device:
                     print('About to attach kernel driver to G6 device: failed!')
                     print(f'Failed to attach kernel driver to G6 device: {e}', file=sys.stderr)
 
-        def send_audio_data_to_device(self, audio_data_list: list[UsbAudioData], dry_run: bool) -> None:
+        def send_audio_data_to_device(self, audio_data_list: list[UsbAudioData], dry_run: bool, debug: bool) -> None:
             """
             Convert the audio_data_list to a list of hex strings and send them to the device.
             :param audio_data_list: The list of UsbAudioData objects to send to the G6.
             :param dry_run: Whether to simulate communication with the device for program testing purposes.
+            :param debug: Print communication data with the G6 device to the console.
 
             A bmRequestType has a length of one byte and is a bitmap, containing three fields:
             - Direction (Bit 7)
@@ -179,11 +180,21 @@ class G6Device:
                 raise IOError(f"The kernel driver of the G6 device is attached. Please detach the kernel driver first!")
 
             # Send audio_data to device
+            print('Sending audio data to G6 ...')
+            transmission_ok = True
             for audio_data in audio_data_list:
                 bm_request_type_int = int.from_bytes(audio_data.get_bm_request_type(), byteorder='little')
                 b_request_int = int.from_bytes(audio_data.get_b_request(), byteorder='little')
                 w_value_int = int.from_bytes(audio_data.get_w_value(), byteorder='little')
                 w_index_int = int.from_bytes(audio_data.get_w_index(), byteorder='little')
+
+                if debug:
+                    print(f'bmRequestType: {audio_data.get_bm_request_type().hex()}')
+                    print(f'bRequest: {audio_data.get_b_request().hex()}')
+                    print(f'wValue: {audio_data.get_w_value().hex()}')
+                    print(f'wIndex: {audio_data.get_w_index().hex()}')
+                    print(f'wLength: {audio_data.get_w_length().hex()}')
+                    print(f'data_fragment: {audio_data.get_data_fragment().hex()}')
 
                 # dry run: do not send any data to the device
                 if dry_run:
@@ -194,7 +205,6 @@ class G6Device:
 
                     # execute the control request
                     try:
-                        print('About to send audio data to G6 device ...')
                         result = self.__usb_device.ctrl_transfer(
                             bmRequestType=bm_request_type_int,
                             bRequest=b_request_int,
@@ -203,10 +213,13 @@ class G6Device:
                             data_or_wLength=audio_data.get_data_fragment(),
                             timeout=1000
                         )
-                        print(f'About to send audio data to G6 device: ok -> {result}')
+                        if debug:
+                            print(f'Sending audio data to G6: ok -> {result}')
                     except usb.core.USBError as e:
-                        print(f'About to send audio data to G6 device: failed!')
+                        transmission_ok = False
+                        print(f'Sending audio data to G6: failed!')
                         print(f'Failed to send audio data to G6 device: {e}', file=sys.stderr)
+            print(f'Sending audio data to G6: {"ok" if transmission_ok else "failed"}.')
 
         def __check_kernel_driver_attached(self, dry_run: bool) -> bool:
             print('About to check if kernel driver is attached to G6 device ...')
@@ -257,12 +270,13 @@ class G6Device:
         def get_device_path(self) -> str:
             return self.__device_path
 
-        def send_hid_data_to_device(self, hid_data_list: list[UsbHidDataFragment], dry_run: bool) -> None:
+        def send_hid_data_to_device(self, hid_data_list: list[UsbHidDataFragment], dry_run: bool, debug: bool) -> None:
             """
             Send the payload_hex_lines to an endpoint from the usb device, identified by the device_path.
             :param hid_data_list: The list of UsbHidDataFragment objects to send to the G6. Each data line must be 128 characters long (64 bytes).
             :param dry_run: whether to simulate communication with the device for program testing purposes.
                             If set to true, no data is sent to the G6!
+            :param debug: Print communication data with the G6 device to the console.
             """
             try:
                 print(f"Opening the device '{self.__device_path}' ...")
@@ -295,6 +309,7 @@ class G6Device:
                                 f"Pattern: '{PAYLOAD_HEX_LINE_PATTERN}'; "
                                 f"Hex-Line: '{hex_line}'")
 
+                    print("Sending HID data to G6 ...")
                     for hex_line in payload_hex_lines:
                         # Prepend an additional zero byte as report_id to the hex_line. Otherwise, the first byte from the actual
                         # 64 byte payload is cut off, since it is interpreted as report_id and thus, not sent to the device.
@@ -304,23 +319,22 @@ class G6Device:
                         integer_list = [int(hex_line[i:i + 2], 16) for i in range(0, len(hex_line), 2)]
 
                         # send the data to the device
-                        print("Sending data to G6 ...")
-                        print(hex_line)
+                        if debug:
+                            print(hex_line)
                         if dry_run:
                             print('This is a dry run. No data has been sent to the G6!')
                         else:
                             h.write(integer_list)
-                        print("Sending data to G6: ok.")
 
                         # read back the response
                         if not dry_run:
-                            print("Read the response:")
                             while True:
-                                d = h.read(64)
-                                if d:
-                                    print(d)
+                                response = h.read(64)
+                                if response and debug:
+                                    print(f"Response: {response}")
                                 else:
                                     break
+                    print("Sending HID data to G6: ok.")
                 finally:
                     if not dry_run:
                         print("Closing the device ...")
@@ -338,10 +352,11 @@ class G6Device:
                     '\nIf the file already exists, it might not be used by the kernel. Try to reload the configuration with:')
                 print("`sudo udevadm trigger`")
 
-    def __init__(self, audio_interface: AudioInterface, hid_interface: HidInterface, dry_run: bool):
+    def __init__(self, audio_interface: AudioInterface, hid_interface: HidInterface, dry_run: bool, debug: bool):
         self.__audio_interface = audio_interface
         self.__hid_interface = hid_interface
         self.__dry_run = dry_run
+        self.__debug = debug
 
     def get_audio_interface_device_path(self) -> str:
         return self.__audio_interface.get_device_path()
@@ -359,13 +374,15 @@ class G6Device:
         self.__audio_interface.release_interface(dry_run=self.__dry_run)
 
     def send_audio_data_to_device(self, audio_data_list: list[UsbAudioData]) -> None:
-        self.__audio_interface.send_audio_data_to_device(audio_data_list=audio_data_list, dry_run=self.__dry_run)
+        self.__audio_interface.send_audio_data_to_device(audio_data_list=audio_data_list, dry_run=self.__dry_run,
+                                                         debug=self.__debug)
 
     def is_hid_interface_available(self) -> bool:
         return self.__hid_interface.is_available(dry_run=self.__dry_run)
 
     def send_hid_data_to_device(self, hid_data_list: list[UsbHidDataFragment]) -> None:
-        self.__hid_interface.send_hid_data_to_device(hid_data_list=hid_data_list, dry_run=self.__dry_run)
+        self.__hid_interface.send_hid_data_to_device(hid_data_list=hid_data_list, dry_run=self.__dry_run,
+                                                     debug=self.__debug)
 
 
 def list_all_hid_devices():
@@ -380,7 +397,7 @@ def list_all_hid_devices():
         print()
 
 
-def detect_device(dry_run: bool) -> G6Device:
+def detect_device(dry_run: bool, debug: bool) -> G6Device:
     """
     Tries to detect the SoundBlaster X G6 device and returns the device path to it.
 
@@ -403,7 +420,8 @@ def detect_device(dry_run: bool) -> G6Device:
     """
     return G6Device(audio_interface=_detect_device_audio_control(),
                     hid_interface=_detect_device_hid(),
-                    dry_run=dry_run)
+                    dry_run=dry_run,
+                    debug=debug)
 
 
 def _detect_device_audio_control() -> G6Device.AudioInterface:

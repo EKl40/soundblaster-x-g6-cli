@@ -66,9 +66,9 @@ from g6_cli.g6_spec.sbx import (
 
 
 class G6Api:
-    def __init__(self, dry_run: bool):
+    def __init__(self, dry_run: bool, debug: bool):
         self.__dry_run = dry_run
-        self.__device = detect_device(dry_run=dry_run)
+        self.__device = detect_device(dry_run=dry_run, debug=debug)
 
     # --- Claim and Release Audio Interface ---
 

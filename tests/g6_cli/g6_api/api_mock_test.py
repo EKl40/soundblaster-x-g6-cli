@@ -19,7 +19,7 @@ def api(monkeypatch: pytest.MonkeyPatch) -> g6_api.G6Api:
     """
     # mock detect_device() method on g6_api module level
     monkeypatch.setattr(g6_api, "detect_device", MagicMock(return_value=G6Device))
-    return g6_api.G6Api(dry_run=True)
+    return g6_api.G6Api(dry_run=True, debug=True)
 
 
 # args_factory returns (args_tuple, kwargs_dict)

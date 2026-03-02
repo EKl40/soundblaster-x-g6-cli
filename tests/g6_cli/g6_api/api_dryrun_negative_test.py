@@ -10,7 +10,7 @@ from g6_cli.g6_spec import AudioFeature, Channel
 
 @pytest.fixture()
 def api() -> g6_api.G6Api:
-    return g6_api.G6Api(dry_run=True)
+    return g6_api.G6Api(dry_run=True, debug=True)
 
 
 # args_factory returns (args_tuple, kwargs_dict)
