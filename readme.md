@@ -34,6 +34,7 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="3256", TAG+="uacce
 ```
 
 ```shell
+# Add udev rule:
 sudo cat > /etc/udev/rules.d/50-soundblaster-x-g6.rules << EOF
 SUBSYSTEM=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="3256", TAG+="uaccess"
 EOF
@@ -48,6 +49,21 @@ Apply the udev rules by issuing:
 # Reload udev rules:
 sudo udevadm trigger
 ```
+
+### Linux: Create sudoers entry for reloading ALSA
+
+To use the application with the `--reload-audio-services` option, you need to add the following line to your sudoers
+file:
+
+```shell
+# Add sudoers entry:
+sudo cat > /etc/sudoers.d/50-soundblaster-x-g6 << EOF
+<username> ALL=(ALL:ALL) NOPASSWD: /usr/sbin/alsa force-reload
+EOF
+```
+
+Replace `<username>` with your actual username. This allows the application (on your behalf) to reload the ALSA services
+without entering your password.
 
 ### Linux: Install libusb1
 
@@ -84,6 +100,8 @@ The soundblaster-x-g6-cli package is installed in `~/.local/share/pipx/venvs/sou
 
 The command `soundblaster-x-g6-cli` should now be available in your shell, otherwise you may have to add the
 directory `~/.local/share/pipx/venvs/soundblaster-x-g6-cli/bin/` to your `$PATH` variable.
+
+Note that you still need to create the **udev rule** and create a **sudoers entry** as described above!
 
 ### Manual installation (from source)
 
@@ -147,18 +165,66 @@ is complete.
 ## CLI usage
 
 ```text
-usage: g6_cli.py [-h] [--dry-run] [--claim-and-release] [--reload-audio-services] [--reload-audio-services-no-sudo] [--toggle-output] [--set-output {Speakers|Headphones}] [--playback-mute {Enabled|Disabled}] [--playback-volume {0..100}] [--playback-volume-channels {Both|Left|Right}] [--playback-speakers-to-stereo]
-                 [--playback-speakers-to-5-1] [--playback-speakers-to-7-1] [--playback-headphones-to-stereo] [--playback-headphones-to-5-1] [--playback-headphones-to-7-1] [--playback-direct-mode {Enabled|Disabled}] [--playback-spdif-out-direct-mode {Enabled|Disabled}]
-                 [--playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}] [--decoder-mode {Normal|Full|Night}] [--lighting-disable] [--lighting-rgb {0..255} {0..255} {0..255}] [--mixer-playback-mute {Enabled|Disabled}]
-                 [--mixer-monitoring-line-in-mute {Enabled|Disabled}] [--mixer-monitoring-line-in-volume {0|10|20|..|100}] [--mixer-monitoring-line-in-volume-channels {Both|Left|Right}] [--mixer-monitoring-external-mic-mute {Enabled|Disabled}] [--mixer-monitoring-external-mic-volume {0|10|20|..|100}]
-                 [--mixer-monitoring-external-mic-volume-channels {Both|Left|Right}] [--mixer-monitoring-spdif-in-mute {Enabled|Disabled}] [--mixer-monitoring-spdif-in-volume {0|10|20|..|100}] [--mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}] [--mixer-recording-line-in-mute {Enabled|Disabled}]
-                 [--mixer-recording-line-in-volume {0|10|20|..|100}] [--mixer-recording-line-in-volume-channels {Both|Left|Right}] [--mixer-recording-external-mic-mute {Enabled|Disabled}] [--mixer-recording-external-mic-volume {0|10|20|..|100}] [--mixer-recording-external-mic-volume-channels {Both|Left|Right}]
-                 [--mixer-recording-spdif-in-mute {Enabled|Disabled}] [--mixer-recording-spdif-in-volume {0|10|20|..|100}] [--mixer-recording-spdif-in-volume-channels {Both|Left|Right}] [--mixer-recording-what-u-hear-mute {Enabled|Disabled}] [--mixer-recording-what-u-hear-volume {0|10|20|..|100}]
-                 [--mixer-recording-what-u-hear-volume-channels {Both|Left|Right}] [--recording-mute {Enabled|Disabled}] [--recording-mic-recording-volume {0|10|20|..|100}] [--recording-mic-recording-volume-channels {Both|Left|Right}] [--recording-mic-boost-db {0|10|20|30}]
-                 [--recording-mic-monitoring-mute {Enabled|Disabled}] [--recording-mic-monitoring-volume {0|10|20|..|100}] [--recording-mic-monitoring-volume-channels {Both|Left|Right}] [--recording-voice-clarity {Enabled|Disabled}] [--recording-voice-clarity-noise-reduction {0|20|40|..|100}]
-                 [--recording-voice-clarity-aec {Enabled|Disabled}] [--recording-voice-clarity-smart-volume {Enabled|Disabled}] [--recording-voice-clarity-mic-eq {Enabled|Disabled}]
-                 [--recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}] [--sbx-surround {Enabled|Disabled}] [--sbx-surround-value {0..100}] [--sbx-crystalizer {Enabled|Disabled}] [--sbx-crystalizer-value {0..100}]
-                 [--sbx-bass {Enabled|Disabled}] [--set-bass-value {0..100}] [--sbx-smart-volume {Enabled|Disabled}] [--sbx-smart-volume-value {0..100}] [--sbx-smart-volume-special-value {Night|Loud}] [--sbx-dialog-plus {Enabled|Disabled}] [--sbx-dialog-plus-value {0..100}]
+usage: g6_cli.py [-h] [--dry-run] [--debug] [--version] [--claim-and-release]
+                 [--reload-audio-services] [--reload-audio-services-no-sudo]
+                 [--toggle-output] [--set-output {Speakers|Headphones}]
+                 [--playback-mute {Enabled|Disabled}]
+                 [--playback-volume {0..100}]
+                 [--playback-volume-channels {Both|Left|Right}]
+                 [--playback-speakers-to-stereo] [--playback-speakers-to-5-1]
+                 [--playback-speakers-to-7-1]
+                 [--playback-headphones-to-stereo]
+                 [--playback-headphones-to-5-1] [--playback-headphones-to-7-1]
+                 [--playback-direct-mode {Enabled|Disabled}]
+                 [--playback-spdif-out-direct-mode {Enabled|Disabled}]
+                 [--playback-filter {FAST_ROLL_OFF_MINIMUM_PHASE|SLOW_ROLL_OFF_MINIMUM_PHASE|FAST_ROLL_OFF_LINEAR_PHASE|SLOW_ROLL_OFF_LINEAR_PHASE}]
+                 [--decoder-mode {Normal|Full|Night}] [--lighting-disable]
+                 [--lighting-rgb {0..255} {0..255} {0..255}]
+                 [--mixer-playback-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-line-in-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-line-in-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-line-in-volume-channels {Both|Left|Right}]
+                 [--mixer-monitoring-external-mic-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-external-mic-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-external-mic-volume-channels {Both|Left|Right}]
+                 [--mixer-monitoring-spdif-in-mute {Enabled|Disabled}]
+                 [--mixer-monitoring-spdif-in-volume {0|10|20|..|100}]
+                 [--mixer-monitoring-spdif-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-line-in-mute {Enabled|Disabled}]
+                 [--mixer-recording-line-in-volume {0|10|20|..|100}]
+                 [--mixer-recording-line-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-external-mic-mute {Enabled|Disabled}]
+                 [--mixer-recording-external-mic-volume {0|10|20|..|100}]
+                 [--mixer-recording-external-mic-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-spdif-in-mute {Enabled|Disabled}]
+                 [--mixer-recording-spdif-in-volume {0|10|20|..|100}]
+                 [--mixer-recording-spdif-in-volume-channels {Both|Left|Right}]
+                 [--mixer-recording-what-u-hear-mute {Enabled|Disabled}]
+                 [--mixer-recording-what-u-hear-volume {0|10|20|..|100}]
+                 [--mixer-recording-what-u-hear-volume-channels {Both|Left|Right}]
+                 [--recording-mute {Enabled|Disabled}]
+                 [--recording-mic-recording-volume {0|10|20|..|100}]
+                 [--recording-mic-recording-volume-channels {Both|Left|Right}]
+                 [--recording-mic-boost-db {0|10|20|30}]
+                 [--recording-mic-monitoring-mute {Enabled|Disabled}]
+                 [--recording-mic-monitoring-volume {0|10|20|..|100}]
+                 [--recording-mic-monitoring-volume-channels {Both|Left|Right}]
+                 [--recording-voice-clarity {Enabled|Disabled}]
+                 [--recording-voice-clarity-noise-reduction {0|20|40|..|100}]
+                 [--recording-voice-clarity-aec {Enabled|Disabled}]
+                 [--recording-voice-clarity-smart-volume {Enabled|Disabled}]
+                 [--recording-voice-clarity-mic-eq {Enabled|Disabled}]
+                 [--recording-voice-clarity-mic-eq-preset {PRESET_1|PRESET_2|PRESET_3|PRESET_4|PRESET_5|PRESET_6|PRESET_7|PRESET_8|PRESET_9|PRESET_10|PRESET_DM_1}]
+                 [--sbx-surround {Enabled|Disabled}]
+                 [--sbx-surround-value {0..100}]
+                 [--sbx-crystalizer {Enabled|Disabled}]
+                 [--sbx-crystalizer-value {0..100}]
+                 [--sbx-bass {Enabled|Disabled}] [--set-bass-value {0..100}]
+                 [--sbx-smart-volume {Enabled|Disabled}]
+                 [--sbx-smart-volume-value {0..100}]
+                 [--sbx-smart-volume-special-value {Night|Loud}]
+                 [--sbx-dialog-plus {Enabled|Disabled}]
+                 [--sbx-dialog-plus-value {0..100}]
 
 SoundBlaster X G6 CLI
 
@@ -168,6 +234,7 @@ options:
 General options:
   --dry-run             Used to verify the available hex_line files, without making any calls against the G6 device.
   --debug               Print communication data with the G6 device to the console.
+  --version             show program's version number and exit
   --claim-and-release   Let the application exclusively claim the G6's USB AudioControl interface from the kernel and release it afterwards. This will disconnect the G6 device from the kernel sound driver "snd-usb-audio" leading the system not having any audio output. Use `--reload-audio-services` to reload the
                         kernel sound driver and make the audio output available again.
   --reload-audio-services

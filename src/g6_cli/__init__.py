@@ -14,7 +14,7 @@ from g6_cli.g6_spec.decoder import DecoderMode
 from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
 from g6_cli.g6_util import to_bool
 
-VERSION = '1.0.0a5'
+VERSION = '1.0.0a6'
 
 # The name of the temporary file to remember the last toggle state in. If the file could not be found. The program
 # lets the G6 to toggle to Speakers by default.
@@ -341,7 +341,7 @@ def parse_cli_args():
     sbx_hid_group.add_argument('--sbx-bass', required=False, type=str, choices=enabled_disabled,
                                metavar="{Enabled|Disabled}",
                                help='Enables or disables the Bass sound effect.')
-    sbx_hid_group.add_argument('--set-bass-value', required=False, type=int, choices=numbers_0_100,
+    sbx_hid_group.add_argument('--sbx-bass-value', required=False, type=int, choices=numbers_0_100,
                                metavar="{0..100}",
                                help='Set the value for the Bass sound effect as integer.')
 
@@ -413,7 +413,7 @@ def parse_cli_args():
             and args.sbx_crystalizer is None \
             and args.sbx_crystalizer_value is None \
             and args.sbx_bass is None \
-            and args.set_bass_value is None \
+            and args.sbx_bass_value is None \
             and args.sbx_smart_volume is None \
             and args.sbx_smart_volume_value is None \
             and args.sbx_smart_volume_special_value is None \
@@ -695,8 +695,8 @@ def device_set_audio_effects(api: G6Api, args: argparse.Namespace):
         # bass
         if args.sbx_bass is not None:
             api.sbx_toggle(AudioFeature.BASS_TOGGLE, to_bool(args.sbx_bass))
-        if args.set_bass_value is not None:
-            api.sbx_slider(AudioFeature.BASS_SLIDER, args.set_bass_value)
+        if args.sbx_bass_value is not None:
+            api.sbx_slider(AudioFeature.BASS_SLIDER, args.sbx_bass_value)
         # smart-volume
         if args.sbx_smart_volume is not None:
             api.sbx_toggle(AudioFeature.SMART_VOLUME_TOGGLE, to_bool(args.sbx_smart_volume))
