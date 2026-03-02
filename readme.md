@@ -441,6 +441,28 @@ Test a single python environment using tox:
 tox -e py312
 ```
 
+### Deploying the application
+
+Create a .pypirc file in your home directory with the following content:
+
+```text
+[testpypi]
+  username = __token__
+  password = <api-token>
+```
+
+Deploy the application on testpypi.org:
+
+```shell
+python -m twine upload --repository testpypi dist/* 
+```
+
+Download the application from testpypi.org and test it:
+
+```shell
+pipx install --pip-args="--index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple" soundblaster-x-g6-cli
+```
+
 # SoundBlaster X G6 USB specification
 
 I reverse-engineered the USB specification by recording the USB communication using
