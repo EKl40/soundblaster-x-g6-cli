@@ -14,6 +14,8 @@ from g6_cli.g6_spec.decoder import DecoderMode
 from g6_cli.g6_spec.recording import MicrophoneEqualizerPreset
 from g6_cli.g6_util import to_bool
 
+VERSION = '1.0.0a5'
+
 # The name of the temporary file to remember the last toggle state in. If the file could not be found. The program
 # lets the G6 to toggle to Speakers by default.
 TOGGLE_STATE_TEMP_FILE_NAME = 'g6-cli-toggle-state'
@@ -67,7 +69,9 @@ def parse_cli_args():
     general_options_group = parser.add_argument_group('General options')
     general_options_group.add_argument('--dry-run', required=False, action='store_true',
                                        help='Used to verify the available hex_line files, without making any calls against the G6 device.')
-    general_options_group.add_argument('--debug', required=False, action='store_true', help='Print communication data with the G6 device to the console.')
+    general_options_group.add_argument('--debug', required=False, action='store_true',
+                                       help='Print communication data with the G6 device to the console.')
+    general_options_group.add_argument('--version', action='version', version=f'soundblaster-x-g6-cli {VERSION}')
 
     general_options_group.add_argument('--claim-and-release', required=False, action='store_true',
                                        help='Let the application exclusively claim the G6\'s USB AudioControl interface from the kernel and release it afterwards.'
