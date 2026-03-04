@@ -62,7 +62,7 @@ def parse_cli_args():
     channels = ['Both', 'Left', 'Right']
     decoder_modes = ['Normal', 'Full', 'Night']
 
-    parser = argparse.ArgumentParser(description='SoundBlaster X G6 CLI')
+    parser = argparse.ArgumentParser(usage="soundblaster-x-g6-cli", description='SoundBlaster X G6 CLI')
     #
     # Device / services
     #
