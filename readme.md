@@ -401,6 +401,8 @@ SBX [HID]:
 
 ## Development
 
+Before continuing this section, see the section **System Requirements** and install the required system dependencies.
+
 ### Building the application
 
 To build the application, run the following commands:
