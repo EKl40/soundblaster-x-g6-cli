@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 
 from g6_cli.g6_core import (
     detect_device
@@ -97,7 +98,12 @@ class G6Api:
                     raise RuntimeError("sudo not found; run as root or install/configure sudo.")
                 alsa_cmd = [sudo_path, "--non-interactive", *alsa_cmd]
 
-            subprocess.run(alsa_cmd, check=False)  # check=False: some module may fail. Continue anyway ...
+            completed_process = subprocess.run(alsa_cmd,
+                                               capture_output=True,
+                                               encoding='utf-8',
+                                               check=False)  # check=False: some module may fail. Continue anyway ...
+            sys.stdout.write(completed_process.stdout)
+            sys.stderr.write(completed_process.stderr)
 
         def reload_pipewire():
             systemctl = shutil.which("systemctl")
@@ -107,11 +113,15 @@ class G6Api:
             user_env = dict(os.environ)
             user_env.setdefault("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
 
-            subprocess.run(
+            completed_process = subprocess.run(
                 [systemctl, "--user", "restart", "pipewire", "pipewire-pulse", "wireplumber"],
+                capture_output=True,
+                encoding='utf-8',
                 check=True,
                 env=user_env,
             )
+            sys.stdout.write(completed_process.stdout)
+            sys.stderr.write(completed_process.stderr)
 
         # check for dryrun mode
         if self.__dry_run:
