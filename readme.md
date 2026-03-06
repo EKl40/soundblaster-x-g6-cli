@@ -165,7 +165,7 @@ is complete.
 ## CLI usage
 
 ```text
-usage: g6_cli.py [-h] [--dry-run] [--debug] [--version] [--claim-and-release]
+usage: soundblaster-x-g6-cli [-h] [--dry-run] [--debug] [--version] [--claim-and-release]
                  [--reload-audio-services] [--reload-audio-services-no-sudo]
                  [--toggle-output] [--set-output {Speakers|Headphones}]
                  [--playback-mute {Enabled|Disabled}]
